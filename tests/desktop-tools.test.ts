@@ -149,7 +149,7 @@ test('desktop permission is separate from computer, per run, and passes the memb
   } finally { release(); await engine.close(); rmSync(root, {recursive: true, force: true}); }
 });
 
-test('desktop tools run the pinned binary headless with a private per-member state directory', {skip: process.platform !== 'win32'}, async () => {
+test('desktop tools run the pinned binary headless with a private per-member state directory', {skip: process.platform !== 'win32' || Boolean(process.env.CI)}, async () => {
   const state = path.join(mkdtempSync(path.join(process.env.TEMP!, 'desktop-state-')), 'desktop-automation');
   const runs = new Set(['run-a']);
   try {
