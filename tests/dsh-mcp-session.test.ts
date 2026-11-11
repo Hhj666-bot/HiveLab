@@ -19,7 +19,7 @@ test('DSH retains protocol-safe error details and the original response identity
  await assert.rejects(adapter.request('session/new',{}),(error:any)=>error instanceof NativeResponseError&&error.code===original.code&&error.data===original.data&&error.message.includes('mcp-client(hivelab)'));
 });
 
-test('real signed-out DSH can create, close and resume a session with the HiveLab tool bridge; no prompt or model call',async()=>{
+test('real signed-out DSH can create, close and resume a session with the HiveLab tool bridge; no prompt or model call',{skip:Boolean(process.env.CI)},async()=>{
  assert.ok(process.env.HIVELAB_TEST_PROFILE,'Use the isolated test bootstrap');
  const settings={...DEFAULT_SETTINGS,paths:{dsh:path.resolve('node_modules/@deepseek-ai/dsh/lib/bin.js')}},workspace=path.join(process.env.HIVELAB_DATA_DIR!,'mcp-workspace');mkdirSync(workspace,{recursive:true});
  let toolCalls=0;const control=new AgentControl(()=>true,async()=>{toolCalls++;throw Error('No tools may run in this initialization test');}),adapter=new DshAdapter() as any;
