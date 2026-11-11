@@ -95,6 +95,8 @@ Tests use temporary, signed-out profiles and never call a real model. See [CONTR
 
 HiveLab is developed from [tonyAmadeus/offAice](https://github.com/tonyAmadeus/offAice). Third-party software, trademark notes and the terms of the character artwork (credit required, noncommercial) are listed in [ATTRIBUTION.md](ATTRIBUTION.md). Claude, Codex and the other product names belong to their owners; HiveLab is not affiliated with them.
 
+The portraits of the three default members (Claude, Codex, DeepSeek) are by ZipZipPipe ([original post](https://www.pixiv.net/artworks/148186519), [artist page](https://www.pixiv.net/users/18604994)); please keep the credit, and do not use them commercially.
+
 ## License
 
 The source code is under the [MIT License](LICENSE). The character artwork (`src/renderer/assets/`) and the screenshots and clips in `docs/media/` are not covered: the artwork requires credit and noncommercial use, see [ATTRIBUTION.md](ATTRIBUTION.md).

@@ -785,6 +785,8 @@ Electron 主进程 (src/main)            窗口、托盘、方法白名单、密
 
 HiveLab 合屋基于 [tonyAmadeus/offAice](https://github.com/tonyAmadeus/offAice) 继续开发。液态玻璃折射改编自 [liquid-glass-web](https://github.com/xiaofangstudio/liquid-glass-web) 和 [Shu Ding 的 liquid-glass](https://github.com/shuding/liquid-glass)。终端使用 xterm.js 和 node-pty，PDF 预览使用 PDF.js，动态壁纸使用 WebWallGL。
 
+内置的 Claude、Codex、DeepSeek 三位成员的立绘来自画师 ZipZipPipe 的作品（[Pixiv 原帖](https://www.pixiv.net/artworks/148186519)、[作者主页](https://www.pixiv.net/users/18604994)），使用时请保留署名，不可商用。
+
 Claude、Codex、DeepSeek、Gemini、Antigravity 等名称属于各自的所有者，HiveLab 与它们没有隶属或背书关系，只是驱动用户自己安装的官方程序。
 
 ## 许可
