@@ -1,0 +1,24 @@
+/* Reading details share their host's tint and opacity. Text layers stay clear;
+   glass belongs to the block, not a second opaque background inside <pre>. */
+:root[data-liquid-glass=true] :is(.file-preview-panel,.asset-preview-modal){--glass-reading-opacity:var(--workspace-preview-opacity,var(--glass-menu-opacity,74%))}
+:root[data-liquid-glass=true] .page-background :is(.room-line:not(.mine),.run-activity){--glass-reading-tint:var(--chat-reply-color,var(--m-soft,var(--surface)));--glass-reading-opacity:var(--chat-reply-opacity,100%)}
+:root[data-liquid-glass=true] .page-background .room-line.mine{--glass-reading-tint:var(--chat-mine-color,var(--brand));--glass-reading-opacity:var(--chat-mine-opacity,100%)}
+:root[data-liquid-glass=true] :is(.md-code,.md-table,.markdown blockquote,.preview-markdown table,.pdf-preview>nav,.office-sheet-tabs,.office-slide,.runtime-diagnostics,.activity-code,.native-plugin-settings pre,.joint-files pre),html:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) :is(.md-code,.md-table,.activity-code,.runtime-diagnostics){background:color-mix(in srgb,var(--glass-reading-tint,var(--surface)) var(--glass-reading-opacity,var(--glass-menu-opacity,74%)),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,blur(0px)) var(--liquid-finish);border-color:var(--glass-rim);color:var(--adaptive-ink,var(--ink));box-shadow:none}
+:root[data-liquid-glass=true] .markdown blockquote{border-left-color:color-mix(in srgb,currentColor 30%,transparent)}
+:root[data-liquid-glass=true] :is(.file-preview-document,.workspace-document) :is(.file-preview-toolbar,.workspace-document-tools,.workspace-file-status){background:transparent;border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] :is(.preview-content.preview-content-code,.workspace-code-editor),:root[data-liquid-glass=true] .file-preview-panel :is(.preview-content-code,.workspace-code-editor){background:transparent;color:var(--adaptive-ink,var(--ink))}
+:root[data-liquid-glass=true] .syntax-code,:root[data-liquid-glass=true] :is(.room-bubble,.run-activity,.preview-content) .syntax-code{background:transparent;color:var(--adaptive-ink,var(--ink))}
+:root[data-liquid-glass=true] :is(.md-code-bar,.md-table th,.preview-markdown th,.office-grid th){background:transparent;color:inherit;border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .workspace-code-editor textarea{color:var(--adaptive-ink,var(--ink));caret-color:currentColor}
+:root[data-liquid-glass=true] .syntax-code .syntax-line-numbers{background:color-mix(in srgb,var(--glass-reading-tint,var(--surface)) var(--glass-reading-opacity,var(--glass-menu-opacity,74%)),transparent)!important;background-image:none!important;color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 70%,transparent);backdrop-filter:var(--liquid-refraction,blur(0px)) var(--liquid-finish);border-right-color:var(--glass-rim)!important}
+:root[data-liquid-glass=true] .syntax-code :is(.hljs-keyword,.hljs-selector-tag,.hljs-literal){color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 65%,light-dark(#8b2ca7,#c3a0ff))}
+:root[data-liquid-glass=true] .syntax-code :is(.hljs-string,.hljs-regexp,.hljs-addition){color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 65%,light-dark(#237241,#a8d694))}
+:root[data-liquid-glass=true] .syntax-code :is(.hljs-number,.hljs-symbol,.hljs-attr){color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 65%,light-dark(#925b13,#e9bb83))}
+:root[data-liquid-glass=true] .syntax-code :is(.hljs-title,.hljs-section,.hljs-type,.hljs-built_in,.hljs-class){color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 65%,light-dark(#1763a0,#87c5f6))}
+:root[data-liquid-glass=true] .syntax-code :is(.hljs-meta,.hljs-tag,.hljs-name,.hljs-variable,.hljs-template-variable,.hljs-deletion){color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 65%,light-dark(#a63851,#f18b97))}
+:root[data-liquid-glass=true] .syntax-code :is(.hljs-comment,.hljs-quote){color:color-mix(in srgb,var(--adaptive-ink,var(--ink)) 75%,transparent)}
+:root[data-liquid-glass=true] .syntax-code :is(*),:root[data-liquid-glass=true] .workspace-code-editor textarea{text-shadow:none}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+ :root :is(.md-code,.md-table,.markdown blockquote,.preview-markdown table,.pdf-preview>nav,.office-sheet-tabs,.office-slide,.runtime-diagnostics,.activity-code,.native-plugin-settings pre,.joint-files pre){background:var(--surface)!important;color:var(--ink)!important;backdrop-filter:none!important}
+ :root .syntax-code .syntax-line-numbers{background:var(--surface)!important;backdrop-filter:none!important}
+}

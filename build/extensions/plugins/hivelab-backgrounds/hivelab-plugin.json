@@ -1,0 +1,11 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-backgrounds",
+  "name": "页面背景",
+  "description": "按页面保存图片或视频背景，并导入 Wallpaper Engine 图片/视频项目。",
+  "version": "1.0.0",
+  "tools": [],
+  "features": [
+    "backgrounds"
+  ]
+}

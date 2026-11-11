@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {chromium,expect} from '@playwright/test';
+import {createServer} from '../../scripts/ui-test-server.mjs';
+const server=await createServer({server:{host:'127.0.0.1',port:0},logLevel:'error'});await server.listen();
+const browser=await chromium.launch({channel:'msedge',headless:true});
+try{
+ const page=await browser.newPage({viewport:{width:1350,height:1000},colorScheme:'dark'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const url=server.resolvedUrls.local[0]+'tests/ui/storage-permissions-fixture.html';await page.goto(url);
+ await expect(page.locator('.storage-category')).toHaveCount(11);
+ await page.locator('.storage-category>summary').filter({hasText:'聊天与设置数据库'}).click();
+ await page.locator('.storage-category[open] .storage-desk>summary').click();
+ await expect(page.getByText('删除人物前的话题',{exact:true})).toBeVisible();await expect(page.locator('.storage-category[open]').getByText('人物卡已删除',{exact:true})).toBeVisible();
+ await page.locator('.storage-topics').getByRole('button',{name:'删除',exact:true}).click();
+ await expect(page.getByRole('checkbox',{name:/是否同步删除对话内文件/})).not.toBeChecked();await page.getByRole('button',{name:'确认删除',exact:true}).click();
+ assert.ok(await page.evaluate(()=>window.settingsCalls.some(c=>c.method==='storage.deleteTopic'&&c.params.memberId==='removed'&&c.params.threadId==='old-topic')));
+ await page.locator('.storage-category>summary').filter({hasText:'聊天与设置数据库'}).click();
+ const media=page.locator('.storage-category[data-category="media"]');await media.locator('summary').click();
+ await expect(media.locator('.storage-breakdown .storage-row')).toHaveCount(2);await expect(media.getByText('壁纸与背景视频',{exact:true})).toBeVisible();
+ await media.getByRole('button',{name:'打开 启动动画',exact:true}).click();assert.ok(await page.evaluate(()=>window.settingsCalls.some(c=>c.method==='storage.reveal'&&c.params.path==='startup-media')));
+ const native=page.locator('.storage-category[data-category="native"]');await native.locator('summary').click();await native.getByRole('button',{name:'清理话题记录',exact:true}).click();
+ await expect(page.locator('.storage-category[data-category="database"]')).toHaveAttribute('open','');
+ const temp=page.locator('.storage-category[data-category="temp"]');await temp.locator('summary').click();await temp.getByRole('button',{name:/清理已结束任务的残留（2 个）/}).click();
+ assert.ok(await page.evaluate(()=>window.settingsCalls.some(c=>c.method==='storage.sweepTemp')));
+ await mkdir('tests/ui/results',{recursive:true});await page.screenshot({path:'tests/ui/results/storage-cards.png'});
+ for(const id of ['media','native','temp','database'])if(await page.locator(`.storage-category[data-category="${id}"]`).getAttribute('open')!==null)await page.locator(`.storage-category[data-category="${id}"]>summary`).click();
+
+ await page.locator('.storage-category>summary').filter({hasText:'工位文件'}).click();await page.locator('.storage-category[open] .storage-desk>summary').click();await page.getByRole('button',{name:'文件管理',exact:true}).click();
+ await expect(page.getByRole('combobox',{name:'文件管理工位'})).toHaveValue('removed');await expect(page.getByRole('combobox',{name:'文件管理工位'}).locator('option:checked')).toContainText('人物卡已删除');
+ await expect(page.getByRole('button',{name:'删除会话 在吗',exact:true})).toBeVisible();await page.getByRole('button',{name:'删除会话 在吗',exact:true}).click();
+ await page.getByRole('checkbox',{name:/是否同步删除对话内文件/}).check();await page.getByRole('button',{name:'确认删除',exact:true}).click();
+ assert.ok(await page.evaluate(()=>window.settingsCalls.some(c=>c.method==='storage.deleteSession'&&c.params.sessionId==='old-session'&&c.params.deleteFiles===true)));
+ await page.goto(url);await page.locator('.storage-category[data-category="media"]>summary').click();await page.getByRole('button',{name:'启动动画（工作台）',exact:true}).click();await expect(page.locator('.settings-nav-group button.selected')).toHaveText('工作台');
+ await page.goto(url+'?tab=permissions');await expect(page.locator('.connection-card')).toHaveCount(1);await expect(page.getByText('执行端默认权限')).toHaveCount(0);await expect(page.locator('.connection-card-body')).toHaveCount(0);
+ await page.locator('.connection-card-head').click();await page.getByRole('combobox',{name:'现有人物 权限等级'}).selectOption('request');await page.getByRole('button',{name:'保存设置',exact:true}).click();
+ assert.ok(await page.evaluate(()=>window.settingsCalls.some(c=>c.method==='settings.save'&&c.params.settings.memberPermissions.active.mode==='request')));
+ await page.screenshot({path:'tests/ui/results/permission-cards.png'});
+ await page.goto(url+'?tab=members');const footer=page.locator('.card-editor-actions');await expect(footer.getByRole('button',{name:'删除人物卡',exact:true})).toHaveClass(/danger-solid/);
+ const order=await footer.locator('button').allTextContents();assert.deepEqual(order.slice(-3),['取消','删除人物卡','保存人物卡']);
+ const deleteColor=await footer.getByRole('button',{name:'删除人物卡',exact:true}).evaluate(el=>getComputedStyle(el).backgroundColor);assert.notEqual(deleteColor,'rgba(0, 0, 0, 0)');
+ await expect(page.locator('.card-editor textarea')).toHaveCount(0);
+ await page.getByRole('button',{name:/人设与说话风格.*字/}).click();await page.locator('.persona-section-dialog textarea').fill('这是新的人物设定');await page.getByRole('button',{name:'完成编辑',exact:true}).click();
+ await page.getByRole('button',{name:/小习惯/}).click();await page.getByRole('textbox',{name:'小动作',exact:true}).fill('转笔\n看窗外');await page.getByRole('button',{name:'完成编辑',exact:true}).click();
+ await page.screenshot({path:'tests/ui/results/member-delete-action.png'});
+ await footer.getByRole('button',{name:'保存人物卡',exact:true}).click();assert.ok(await page.evaluate(()=>window.settingsCalls.some(c=>c.method==='team.save'&&c.params.member.persona==='这是新的人物设定'&&c.params.member.quirks.join(',')==='转笔,看窗外')));
+ assert.deepEqual(errors,[]);console.log('PASS: expandable storage categories; deleted-member topics and file management; retained cleanup actions; compact member-only permissions and persistence; red delete action between cancel/save.');
+}finally{await browser.close();await server.close();}

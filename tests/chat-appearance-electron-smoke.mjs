@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import {unfoldSettings} from './helpers/settings-menu.mjs';
+import path from 'node:path';
+import {mkdirSync} from 'node:fs';
+import {DatabaseSync} from 'node:sqlite';
+import {_electron,expect} from '@playwright/test';
+import {isolatedTestEnvironment,cleanupTestEnvironment} from '../scripts/test-environment.mjs';
+const {directory,env}=isolatedTestEnvironment(process.env,process.cwd());
+delete env.ELECTRON_RUN_AS_NODE;
+const db=new DatabaseSync(path.join(env.HIVELAB_DATA_DIR,'hivelab.sqlite'));
+db.exec('CREATE TABLE entities(entity TEXT,id TEXT,value TEXT,PRIMARY KEY(entity,id))');
+const put=(entity,id,value)=>db.prepare('INSERT INTO entities VALUES(?,?,?)').run(entity,id,JSON.stringify(value));
+put('members','test-member',{id:'test-member',name:'测试成员',executor:'codex',color:'#7b6fd6',motto:'右键查看的介绍'});
+for(const [id,author,text] of [['test-user','user','这是我的消息'],['test-reply','test-member','这是一条回复，**文字保持清晰**。']])put('room_messages',id,{id,author,text,threadId:'room-main',at:new Date().toISOString(),status:'done'});
+db.close();
+const executablePath=process.env.HIVELAB_TEST_EXECUTABLE??path.resolve('node_modules/electron/dist/electron.exe');
+const args=process.env.HIVELAB_TEST_APP?[path.resolve(process.env.HIVELAB_TEST_APP)]:process.env.HIVELAB_TEST_EXECUTABLE?[]:[path.resolve('.')];
+let app;
+const errors=[];
+async function launch(){app=await _electron.launch({executablePath,args,env,timeout:30000});const page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await expect.poll(()=>page.evaluate(()=>window.hivelab.invoke('snapshot').then(s=>s.backendReady).catch(()=>false)),{timeout:25000}).toBe(true);return page;}
+const shotDir=process.env.HIVELAB_TEST_SHOTS??path.resolve('tests/ui/results');mkdirSync(shotDir,{recursive:true});
+try{
+ let page=await launch();
+ const row=page.getByRole('button',{name:'测试成员 · 进入工位',exact:true});
+ await row.click();await expect(page.getByRole('main',{name:'个人工位'})).toBeVisible();await expect(page.getByRole('dialog',{name:'测试成员 的人物卡片'})).toHaveCount(0);
+ await row.click({button:'right'});await expect(page.getByRole('dialog',{name:'测试成员 的人物卡片'})).toContainText('右键查看的介绍');await page.keyboard.press('Escape');
+ await row.focus();await page.keyboard.press('Shift+F10');await expect(page.getByRole('dialog',{name:'测试成员 的人物卡片'})).toBeVisible();await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'收起侧栏',exact:true}).click();await row.click({button:'right'});await expect(page.getByRole('dialog',{name:'测试成员 的人物卡片'})).toBeVisible();await page.keyboard.press('Escape');await row.click();await expect(page.getByRole('main',{name:'个人工位'})).toBeVisible();
+ const entries=page.locator('.place-list > button');await expect(entries).toHaveCount(3);
+ const iconLayout=await entries.evaluateAll(nodes=>nodes.map(n=>({texts:[...n.querySelectorAll(':scope > span')].map(s=>getComputedStyle(s).display),height:n.getBoundingClientRect().height,iconOffset:Math.abs((n.querySelector('svg').getBoundingClientRect().left+n.querySelector('svg').getBoundingClientRect().width/2)-(n.getBoundingClientRect().left+n.getBoundingClientRect().width/2))})));
+ assert.ok(iconLayout.every(n=>n.texts.every(display=>display==='none')&&n.height<=46&&n.iconOffset<1),'icon sidebar has three compact centered icons without text');
+ await page.getByRole('button',{name:'待你处理',exact:true}).click();await expect(page.getByRole('dialog',{name:'待你处理',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'圆桌',exact:true}).click();await page.getByRole('button',{name:'茶歇室',exact:true}).click();await expect(page.locator('.room-bubble')).toHaveCount(2);
+ await page.screenshot({path:path.join(shotDir,'sidebar-icons-fixed.png'),animations:'disabled'});
+ await page.getByRole('button',{name:'展开侧栏',exact:true}).click();await expect(page.locator('.place-list .room-entry strong').first()).toBeVisible();await expect(page.locator('.place-list .attention-entry strong')).toBeVisible();
+ await page.evaluate(()=>{document.documentElement.dataset.theme='dark';});
+ const baseline=await page.locator('.room-line:not(.mine) .room-bubble').evaluate(n=>({color:getComputedStyle(n).color,bg:getComputedStyle(n).backgroundColor}));
+ assert.equal(baseline.color,'rgb(243, 235, 225)');
+ await page.getByRole('button',{name:'外观',exact:true}).click();await unfoldSettings(page);
+ for(const [label,color,transparency] of [['回复气泡与思考栏','#123456','65'],['我的消息','#77bbcc','40'],['输入框','#ddeeff','80']]){await page.getByLabel(label+'背景颜色',{exact:true}).fill(color);await page.getByRole('slider',{name:label+'透明度',exact:true}).fill(transparency);}
+ await page.screenshot({path:path.join(shotDir,'chat-appearance-settings.png'),animations:'disabled'});await page.getByRole('button',{name:'完成',exact:true}).click();
+ const styles=await page.evaluate(()=>Object.fromEntries([['reply','.room-line:not(.mine) .room-bubble'],['mine','.room-line.mine .room-bubble'],['input','.room-input']].map(([id,selector])=>{const n=document.querySelector(selector),c=getComputedStyle(n);return [id,{bg:c.backgroundColor,color:c.color,opacity:c.opacity}];})));
+ assert.match(styles.reply.bg,/0\.35\)/);assert.match(styles.mine.bg,/0\.6\)/);assert.match(styles.input.bg,/0\.2\)/);assert.equal(styles.reply.color,'rgb(250, 250, 250)');assert.equal(styles.input.color,'rgb(23, 23, 23)');assert.ok(Object.values(styles).every(s=>s.opacity==='1'));
+ await page.screenshot({path:path.join(shotDir,'chat-appearance-chat.png'),animations:'disabled'});
+ await app.close();app=undefined;page=await launch();await page.getByRole('button',{name:'测试成员 · 进入工位',exact:true}).click();await page.getByRole('button',{name:'外观',exact:true}).click();await unfoldSettings(page);
+ await expect(page.getByRole('slider',{name:'输入框透明度',exact:true})).toHaveValue('80');await expect(page.getByLabel('回复气泡与思考栏背景颜色',{exact:true})).toHaveValue('#123456');
+ await page.getByRole('slider',{name:'输入框透明度',exact:true}).fill('100');await page.getByRole('button',{name:'完成',exact:true}).click();assert.match(await page.locator('.room-input').evaluate(n=>getComputedStyle(n).backgroundColor),/0\)$/);
+ await page.getByRole('button',{name:'外观',exact:true}).click();await unfoldSettings(page);await page.getByRole('button',{name:'恢复默认聊天外观'}).click();await expect(page.getByRole('slider',{name:'输入框透明度',exact:true})).toHaveValue('0');await page.getByRole('button',{name:'完成',exact:true}).click();
+ await page.getByRole('button',{name:'茶歇室',exact:true}).click();await page.evaluate(()=>{document.documentElement.dataset.theme='dark';});assert.deepEqual(await page.locator('.room-line:not(.mine) .room-bubble').evaluate(n=>({color:getComputedStyle(n).color,bg:getComputedStyle(n).backgroundColor})),baseline);
+ assert.deepEqual(errors,[]);console.log('PASS: actual Electron; sidebar left/right/keyboard and icon mode; three independent colors and transparency; text opacity; cross-page and process restart persistence; 100% transparency; theme restoration; no model calls.');
+}finally{if(app)await app.close();cleanupTestEnvironment(directory,process.cwd());}

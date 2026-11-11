@@ -1,0 +1,47 @@
+/* Plan card (L2): follows the reply it belongs to. A plan awaiting review carries an accent rim; settled plans fold to
+   their header. Entry, status tint and the rim fade over the motion tokens, never in one frame. */
+.plan-card{--plan-accent:var(--focus,var(--brand));margin:8px 0;width:640px;max-width:100%;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);color:var(--ink);overflow:hidden;box-shadow:inset 3px 0 0 transparent;animation:plan-card-in var(--motion-base) var(--ease-out) both;transition:box-shadow var(--motion-fast) var(--ease-out),border-color var(--motion-fast) var(--ease-out)}
+.plan-card:is([data-status=pending],[data-status=ready]){border-color:color-mix(in srgb,var(--plan-accent) 45%,var(--line));box-shadow:inset 3px 0 0 var(--plan-accent)}
+.plan-card>summary{display:flex;align-items:center;gap:7px;padding:9px 11px;cursor:pointer;color:var(--ink-2);font-size:var(--fs-sm);list-style:none;transition:color var(--motion-instant) var(--ease-out)}
+.plan-card>summary::-webkit-details-marker{display:none}
+.plan-card>summary:hover{color:var(--ink)}
+.plan-card>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:var(--r-md)}
+.plan-card>summary>strong{font-weight:var(--fw-semibold);color:inherit}
+.plan-card>summary>svg:last-child{margin-left:2px;transition:transform var(--motion-fast) var(--ease-out)}
+.plan-card[open]>summary>svg:last-child{transform:rotate(180deg)}
+.plan-card[open]>summary{border-bottom:1px solid var(--line)}
+.plan-card-status{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:var(--r-pill);font-size:var(--fs-xs);background:color-mix(in srgb,currentColor 10%,transparent);transition:background-color var(--motion-fast) var(--ease-out),color var(--motion-fast) var(--ease-out)}
+.plan-card:is([data-status=pending],[data-status=ready]) .plan-card-status{color:var(--plan-accent);background:color-mix(in srgb,var(--plan-accent) 14%,transparent);font-weight:var(--fw-semibold)}
+.plan-card[data-status=approved] .plan-card-status{color:var(--status-ok,var(--ok));background:color-mix(in srgb,var(--status-ok,var(--ok)) 14%,transparent)}
+.plan-card[data-status=expired]{color:var(--ink-2)}
+.plan-card-body{display:flex;flex-direction:column;gap:8px;padding:8px 12px 11px}
+.plan-card-text{max-height:min(52vh,460px);overflow:auto;overscroll-behavior:contain;font-size:var(--fs-sm);line-height:1.6;overflow-wrap:anywhere}
+.plan-card-text>:first-child{margin-top:0}.plan-card-text>:last-child{margin-bottom:0}
+.plan-card-inline,.plan-card-note{margin:0;font-size:var(--fs-sm);color:var(--ink-2)}
+.plan-card-note{font-size:var(--fs-xs)}
+.plan-card-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.plan-card-actions .button{display:inline-flex;align-items:center;gap:5px}
+.plan-card-revise{display:flex;flex-direction:column;gap:8px;animation:plan-card-in var(--motion-fast) var(--ease-out) both}
+.plan-card-field{display:flex;flex-direction:column;gap:4px;font-size:var(--fs-xs);color:var(--ink-2)}
+.plan-card-field textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:64px;padding:7px 9px;border:1px solid var(--line);border-radius:var(--r-sm,6px);background:var(--surface);color:var(--ink);font:inherit;font-size:var(--fs-sm);line-height:1.5;transition:border-color var(--motion-instant) var(--ease-out),box-shadow var(--motion-instant) var(--ease-out)}
+.plan-card-field textarea:focus-visible{outline:none;border-color:var(--focus);box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 30%,transparent)}
+.plan-card-error{margin:0;font-size:var(--fs-xs);color:var(--danger,#c0392b)}
+.plan-card-spin{animation:plan-card-spin 1.1s linear infinite}
+@keyframes plan-card-spin{to{transform:rotate(360deg)}}
+@keyframes plan-card-in{from{opacity:0;transform:translateY(calc(var(--motion-shift-sm) * var(--motion-distance)))}}
+
+/* Composer switch: the shared composer-config pill; switched on, it takes the accent so the mode stays visible. */
+:root .room .composer-bottom>.composer-plan{flex:none;gap:5px;transition:color var(--motion-fast) var(--ease-out),background-color var(--motion-fast) var(--ease-out),border-color var(--motion-fast) var(--ease-out)}
+:root .room .composer-bottom>.composer-plan[aria-pressed=true]{color:var(--focus,var(--brand));border-color:color-mix(in srgb,var(--focus,var(--brand)) 55%,transparent);background-color:color-mix(in srgb,var(--focus,var(--brand)) 14%,transparent)}
+
+/* Chat appearance and liquid glass: the same optics, tint and opacity as the task list and activity bar. */
+.page-background .plan-card{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m-soft,var(--surface))) var(--chat-reply-opacity,100%),transparent);color:var(--chat-reply-ink,var(--ink))}
+:root[data-liquid-glass=true] .page-background .plan-card{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m,var(--surface))) var(--chat-reply-opacity,100%),transparent);backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish,var(--glass-finish-default));border-color:var(--glass-rim);box-shadow:var(--glass-shadow);background-image:none}
+:root[data-liquid-glass=true] .page-background .plan-card:is([data-status=pending],[data-status=ready]){border-color:color-mix(in srgb,var(--plan-accent) 55%,var(--glass-rim));box-shadow:inset 3px 0 0 var(--plan-accent),var(--glass-shadow)}
+:root[data-liquid-glass=true] .page-background:not([data-chat-reply-custom=true]) .plan-card:not([data-status=pending]):not([data-status=ready]){border-color:color-mix(in srgb,var(--m,var(--ink)) 24%,transparent)}
+:root[data-liquid-glass=true] .page-background .plan-card>summary{color:color-mix(in srgb,currentColor 82%,transparent)}
+:root[data-liquid-glass=true] .page-background .plan-card[open]>summary{border-bottom-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .page-background .plan-card :is(.plan-card-inline,.plan-card-note,.plan-card-field){color:color-mix(in srgb,currentColor 72%,transparent)}
+:root[data-liquid-glass=true] .page-background .plan-card-field textarea{background:color-mix(in srgb,var(--surface) 55%,transparent);border-color:var(--glass-rim);color:inherit}
+:root[data-liquid-glass=true] .room .composer-bottom>.composer-plan[aria-pressed=true]{color:var(--focus,var(--brand));border-color:color-mix(in srgb,var(--focus,var(--brand)) 60%,var(--glass-rim));background-color:color-mix(in srgb,var(--focus,var(--brand)) 20%,transparent)}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){:root .page-background .plan-card{background:var(--surface)!important;backdrop-filter:none!important;color:var(--ink)!important}:root .page-background .plan-card-field textarea{background:var(--surface)!important}}

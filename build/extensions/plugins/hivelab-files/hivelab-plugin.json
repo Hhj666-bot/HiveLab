@@ -1,0 +1,171 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-files",
+  "name": "文件读取、编辑与交付",
+  "description": "所有执行端共用的文件工具：读取文本、Word、Excel、PowerPoint 和 PDF（可把 PDF 页面转成图片），精确编辑为修改副本，生成 PDF、Word、Excel、CSV、Markdown、代码和 PNG，并附到当前对话。",
+  "version": "1.2.0",
+  "tools": [
+    {
+      "name": "create_file",
+      "description": "生成可下载文件，自动附到本轮回答。format 为 pdf/docx/xlsx/csv/md/txt/code/png，name 为文件名。pdf/docx/md/txt/code 用 content 传正文，代码可提供 language。xlsx 用 sheets 传工作表：[{name,rows:[[\"表头1\",\"表头2\"],[\"值\",\"值\"]],columns?:[{width?,format?}],header?,merge?:[\"A1:C1\"]}]；单元格一律写成字符串，按 Excel 输入习惯识别：\"=SUM(B2:B9)\" 为公式，\"1200\"、\"-3.5\" 为数字，\"12.5%\" 为百分比，\"2026-11-09\"（可带 \" 14:30\"）为日期，以单引号开头的保持原文（如 \"'00123\"、手机号、身份证号）；第一行默认加粗、冻结并加筛选（header:false 关闭）；columns[i].format 为 Excel 数字格式，如 \"#,##0.00\"、\"0.0%\"、\"yyyy-mm-dd\"；也可只给 content（CSV 或 Markdown 表格）生成单表。csv 用 content（CSV 文本）或单张 sheets，保存为带 BOM 的 UTF-8，Excel 打开中文不乱码。png 时优先用 sourcePath 指向本机已有图片（须在 HiveLab 数据目录内，最快），或用 content 传 base64（可带 data:image/png;base64, 前缀）；图片会直接显示在回复里，上限 16 MB。支持茶歇室，文件保存在 HiveLab 合屋 成果目录，不修改项目源文件。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "pdf",
+              "docx",
+              "xlsx",
+              "csv",
+              "md",
+              "txt",
+              "code",
+              "png"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "sheets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "width": {
+                        "type": "number"
+                      },
+                      "format": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "header": {
+                  "type": "boolean"
+                },
+                "merge": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "rows"
+              ]
+            }
+          },
+          "sourcePath": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "format"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file",
+      "description": "读取已授权工作目录中的文件，也可读取当前附件或本话题生成文件。三选一：path（工作区相对路径）、attachmentId、fileId。支持：文本/代码（UTF-8、UTF-16、GBK）；Word (.docx) 正文；Excel (.xlsx/.xlsm) 按行列返回，带行号和列字母，日期和百分比按格式显示，公式和合并单元格单独列出，可用 sheet（名称或序号）和 rows（如 1-200、201-）分段；PowerPoint (.pptx) 各页文字和备注，可用 pages 选页；PDF 各页文字，可用 pages（如 3、2-5、1,4）选页，扫描件或要看图表版式时加 render=true，返回这些页的图片（一次最多 4 页；如果执行端把返回的图片另存为本地文件而没有直接显示，用执行端自带的看图工具打开该文件）。附件可传 attachmentId，也可直接传附件的绝对路径。内容过长会标 truncated，并在 next 里给出继续读取的参数。返回 sha256 供 edit_file 精确编辑（只限文本和 Word）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "attachmentId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "string",
+            "description": "PDF 页码或幻灯片编号，如 3、2-5、1,4,7-"
+          },
+          "sheet": {
+            "type": "string",
+            "description": "Excel 工作表名称或从 1 开始的序号"
+          },
+          "rows": {
+            "type": "string",
+            "description": "Excel 行范围，如 1-200、201-"
+          },
+          "render": {
+            "type": "boolean",
+            "description": "PDF 页面转成图片返回，一次最多 4 页"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "edit_file",
+      "description": "精确替换文本/代码/Word 单段文字，生成可下载修改副本并附在本轮对话，保留原文件；茶歇室可用。先 read_file，传回 sha256 为 expectedHash，再提供 oldText/newText。多处同文须明确 replaceAll。Word 保留原包其他部分及样式，新文字沿用首个匹配文字样式；不支持复杂结构编辑。来源三选一 path/attachmentId/fileId。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "attachmentId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "expectedHash": {
+            "type": "string"
+          },
+          "oldText": {
+            "type": "string"
+          },
+          "newText": {
+            "type": "string"
+          },
+          "replaceAll": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedHash",
+          "oldText",
+          "newText"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "features": [
+    "fileOutputs"
+  ]
+}

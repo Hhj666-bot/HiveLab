@@ -1,0 +1,11 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-images",
+  "name": "原生生图",
+  "description": "在工位、茶歇室等场景使用执行端原生生图能力。",
+  "version": "1.0.0",
+  "tools": [],
+  "features": [
+    "imageGeneration"
+  ]
+}

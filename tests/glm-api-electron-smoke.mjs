@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+import {DatabaseSync} from 'node:sqlite';
+import {_electron,expect} from '@playwright/test';
+import {isolatedTestEnvironment,cleanupTestEnvironment} from '../scripts/test-environment.mjs';
+const {directory,env}=isolatedTestEnvironment(process.env,process.cwd());
+const data=env.HIVELAB_DATA_DIR;mkdirSync(data,{recursive:true});
+const db=new DatabaseSync(path.join(data,'hivelab.sqlite'));
+db.exec('CREATE TABLE entities(entity TEXT,id TEXT,value TEXT,PRIMARY KEY(entity,id))');
+const executor={id:'acp-catalogzcode',catalogId:'zcode',name:'GLM / ZCode',command:'unused-zcode-test.exe',args:[],env:{},permissions:{commands:'deny',fileScope:'workspace',network:true},authentication:'bigmodel',createdAt:new Date(0).toISOString()};
+db.prepare('INSERT INTO entities VALUES(?,?,?)').run('executors',executor.id,JSON.stringify(executor));db.close();
+delete env.ELECTRON_RUN_AS_NODE;
+const electron=await _electron.launch({executablePath:path.resolve('node_modules/electron/dist/electron.exe'),args:[path.resolve('.')],env,timeout:30000});
+try{
+ const page=await electron.firstWindow();await expect.poll(()=>page.evaluate(()=>window.hivelab.invoke('snapshot').then(s=>s.backendReady).catch(()=>false)),{timeout:25000}).toBe(true);
+ await page.getByRole('button',{name:'设置与连接',exact:true}).click();
+ const section=page.getByRole('region',{name:'GLM / ZCode 的连接'});await expect(section).toBeVisible();
+ await section.getByLabel('登录方式',{exact:true}).selectOption('glm-api-cn');
+ await expect(section).toContainText('https://open.bigmodel.cn/api/paas/v4');await expect(section).toContainText('不发送模型请求');
+ await section.getByLabel('ZCode CLI API Key',{exact:true}).fill('fake-glm-electron-only-key');await section.getByRole('button',{name:'默认模型（可选）',exact:true}).click();await section.getByLabel('搜索或填写模型名称',{exact:true}).fill('glm-5.3');await page.keyboard.press('Enter');await expect(section.getByRole('button',{name:'默认模型（可选）',exact:true})).toContainText('glm-5.3');
+ await section.getByRole('button',{name:'保存密钥并检查',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>window.hivelab.invoke('snapshot').then(s=>s.executors.find(e=>e.id==='acp-catalogzcode')?.authentication)),{timeout:10000}).toBe('glm-api-cn');
+ const snapshot=await page.evaluate(()=>window.hivelab.invoke('snapshot'));
+ assert.ok(!JSON.stringify(snapshot).includes('fake-glm-electron-only-key'));
+ const provider=snapshot.providers.find(p=>p.id==='acp-catalogzcode');assert.equal(provider.auth,'api');assert.equal(provider.model,'glm-5.3');assert.match(provider.detail,/未发送模型请求/);
+ await expect(section).toContainText('GLM HTTPS API');
+ const keyFile=path.join(data,'secrets','acp-catalogzcode.secret');assert.ok(!readFileSync(keyFile).includes(Buffer.from('fake-glm-electron-only-key')));
+ await section.getByRole('button',{name:'清除密钥',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>window.hivelab.invoke('snapshot').then(s=>s.executors.find(e=>e.id==='acp-catalogzcode')?.secretKeys?.length)),{timeout:10000}).toBe(0);
+ const shots=path.resolve('tests/ui/results');mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,'glm-api-ui.png')});
+ writeFileSync(path.join(shots,'glm-electron-result.json'),JSON.stringify({passed:true,isolated:true,provider:{auth:provider.auth,model:provider.model,detail:provider.detail},encrypted:true,clear:true},null,2));
+ console.log('PASS: real Electron UI; GLM China selector; encrypted save; worker dispatch; snapshot redaction; API label; clear; no model task');
+}finally{await electron.close();cleanupTestEnvironment(directory,process.cwd());}

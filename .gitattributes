@@ -1,0 +1,4 @@
+# Preserve Windows line endings for the project cleanup launcher.
+Clean-HiveLab.cmd text eol=crlf
+Start-HiveLab.cmd text eol=crlf
+Start-HiveLab-Dev.cmd text eol=crlf

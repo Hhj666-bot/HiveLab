@@ -1,0 +1,4 @@
+mark.search-capsule{padding:1px 3px;border-radius:var(--r-xs);background:color-mix(in srgb,var(--focus) 22%,transparent);color:inherit;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--focus) 24%,transparent);box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:none}
+mark.search-capsule-active{background:color-mix(in srgb,#ffcf66 45%,transparent);box-shadow:inset 0 0 0 1px rgb(255 215 122 / 65%),0 0 9px rgb(255 202 85 / 25%)}
+.syntax-code mark.search-capsule{padding:0;border-radius:var(--r-xs)}
+:root[data-adaptive-text=true] [data-adaptive-group] mark.search-capsule{color:inherit!important;text-shadow:none}

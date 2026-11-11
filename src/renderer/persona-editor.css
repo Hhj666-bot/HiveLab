@@ -1,0 +1,45 @@
+.persona-editor{display:flex;flex-direction:column;gap:12px;min-width:0}
+.persona-editor .covenant-toolbar .segmented{margin-right:6px}
+.persona-list{display:flex;flex-direction:column;gap:10px}
+.persona-card{border:1px solid var(--line);border-radius:var(--r-lg);background:color-mix(in srgb,var(--surface) 30%,transparent);transition:border-color .18s ease,background-color .18s ease}
+.persona-card[open]{border-color:color-mix(in srgb,var(--line) 60%,var(--brand))}
+.persona-card>summary{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;list-style:none}
+.persona-card>summary::-webkit-details-marker{display:none}
+.persona-card>summary small{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.persona-dirty{margin-left:auto;font-style:normal;font-size:var(--fs-sm);color:var(--brand)}
+.persona-source{min-height:480px}
+.persona-sections{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;padding:4px 14px 14px}
+.persona-section{display:flex;flex-direction:column;gap:6px;min-width:0;min-height:108px;padding:12px 14px;text-align:left;font:inherit;color:inherit;border:1px solid var(--line);border-radius:var(--r-md);background:color-mix(in srgb,var(--surface) 45%,transparent);cursor:pointer;transition:border-color .18s ease,background-color .18s ease,transform .18s ease}
+.persona-section:hover{border-color:color-mix(in srgb,var(--line) 40%,var(--brand));background:color-mix(in srgb,var(--surface) 65%,transparent);transform:translateY(-1px)}
+.persona-section:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.persona-section-persona,.persona-section-voice{grid-column:span 2}
+.persona-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.persona-section-head small{color:var(--ink-2);font-size:var(--fs-sm);white-space:nowrap}
+.persona-section-preview{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:pre-line;overflow-wrap:anywhere;color:var(--ink-2);font-size:var(--fs-sm);line-height:1.6}
+.persona-section-preview.empty{opacity:.7}
+.modal.persona-section-dialog{width:min(920px,94vw);max-width:94vw}
+.persona-section-body{max-height:min(72vh,820px);overflow:auto}
+.persona-section-body .field{margin:0}
+.persona-section-body textarea{width:100%;resize:vertical;line-height:1.75;font-size:var(--fs-md)}
+.persona-long-text{min-height:min(52vh,560px)}
+.persona-medium-text{min-height:min(36vh,360px)}
+.persona-basic{display:flex;flex-direction:column;gap:14px}
+.persona-wide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.persona-count{align-self:flex-end;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.persona-count.over{color:var(--danger,#b33d36)}
+@media(max-width:640px){.persona-section-persona,.persona-section-voice{grid-column:auto}}
+.persona-code{flex:none;min-width:28px;padding:1px 7px;border:1px solid var(--line);border-radius:999px;font-size:var(--fs-sm);font-variant-numeric:tabular-nums;text-align:center;color:var(--ink-2)}
+.persona-codes{border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 14px;background:color-mix(in srgb,var(--surface) 30%,transparent);transition:border-color .18s ease}
+.persona-codes>summary{display:flex;align-items:baseline;gap:10px;cursor:pointer;list-style:none;min-width:0}
+.persona-codes>summary::-webkit-details-marker{display:none}
+.persona-codes>summary small{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.persona-codes-saved{margin:8px 0 0;animation:notice-arrive .18s ease-out both}
+.persona-code-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:8px}
+.persona-code-row{display:flex;align-items:center;gap:8px;min-width:0}
+.persona-code-row input{width:72px;flex:none;font-variant-numeric:tabular-nums;text-align:center}
+.persona-code-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.card-persona-sections{display:flex;flex-direction:column;gap:10px;min-width:0}
+.card-persona-sections>.persona-section{width:100%}
+.persona-codes-rewrite{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:10px;cursor:pointer;animation:notice-arrive .18s ease-out both}
+.persona-codes-rewrite small{flex-basis:100%;padding-left:24px;color:var(--ink-2);font-size:var(--fs-sm)}

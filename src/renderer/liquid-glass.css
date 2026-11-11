@@ -1,0 +1,243 @@
+/* One reference material, using the same page and chat opacity preferences
+   as the regular appearance. Selected colours tint the refracted backdrop. */
+.liquid-glass-definitions{position:fixed;pointer-events:none;overflow:hidden}
+/* Finished opacity animations must release their backdrop roots. Otherwise
+   descendants can filter conversation text, but cannot reach the wallpaper. */
+:root[data-liquid-glass=true] :is(.standee-home,.room,.project-room,.roundtable-room,.member-reports,.settings-content>*,.room-line.enter,.approval-card,.attention-bubble-panel,.modal-overlay,.modal,.topic-panel,.room-empty){animation-fill-mode:backwards}
+:root[data-liquid-glass=true] :is([data-liquid-surface],.workspace-toolbar-glass,.workspace-header-surface,.member-notice,.workspace-toast,.attention-bubble,.attention-bubble-panel,.workspace-glass-drawer,.modal,.context-menu,.model-popover,.select-popover,.topic-panel,.room-empty,.composer,.room-bubble,.approval-card,.run-activity){backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish,var(--glass-finish-default));border-color:var(--glass-rim);box-shadow:var(--glass-shadow);background-image:none}
+:root[data-liquid-glass=true] :is(.modal,.context-menu,.model-popover,.select-popover,.topic-panel,.room-empty,.workspace-header-surface,.workspace-toolbar-glass,.workspace-glass-drawer,.member-notice,.workspace-toast,.home-action,.standee-nameplate,.home-projects,.explorer-root,.generated-file-card,.attachment-chip){background-color:transparent}
+:root[data-liquid-glass=true] :is(.workspace-header-surface,.workspace-toolbar-glass,.workspace-glass-drawer,.member-notice,.workspace-toast){background-color:color-mix(in srgb,var(--bg) var(--workspace-header-opacity,74%),transparent)}
+:root[data-liquid-glass=true] .room-empty{background-color:color-mix(in srgb,var(--surface) var(--welcome-card-opacity,45%),transparent)}
+:root[data-liquid-glass=true] .app-shell>.sidebar{background-color:color-mix(in srgb,var(--bg) var(--sidebar-opacity,100%),transparent);border-right-color:var(--glass-rim)}
+:root[data-liquid-glass=true] :is(.button.secondary,.button.quiet,.icon-button,.composer-model,.sidebar-edge-toggle,.desk-folder-option,.segmented,.room-jump){background:transparent;border-color:var(--glass-rim);box-shadow:none}
+:root[data-liquid-glass=true] :is(.button.quiet,.button.secondary,.icon-button):hover:not(:disabled){background:rgb(255 255 255 / 10%);border-color:color-mix(in srgb,var(--ink) 12%,transparent)}
+:root[data-liquid-glass=true] .button.primary{background:var(--brand-primary);color:var(--brand-ink);box-shadow:none}
+:root[data-liquid-glass=true] .modal-overlay{background:var(--glass-dialog-shade);backdrop-filter:blur(var(--glass-dialog-blur))}
+:root[data-liquid-glass=true] .preview-workspace-bar .home-action{backdrop-filter:none}
+:root[data-liquid-glass=true] :is(.roster-with-desk.selected,.room-entry.selected,.attention-entry[aria-expanded=true],.project-list .list-row.selected,.report-row.selected){background:linear-gradient(135deg,rgb(255 255 255 / 12%),transparent 75%),color-mix(in srgb,var(--m,var(--focus)) 13%,transparent);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 12%),inset 0 1px 0 rgb(255 255 255 / 16%),0 3px 12px -10px rgb(0 0 0 / 25%)}
+:root[data-liquid-glass=true] :is(.roster-with-desk:hover,.roster-with-desk:has(.roster-row.open),.room-entry:hover,.project-list .list-row:hover){background:linear-gradient(135deg,rgb(255 255 255 / 10%),transparent),color-mix(in srgb,var(--m,var(--focus)) 9%,transparent)}
+:root[data-liquid-glass=true] .room-topic-bar .topic-picker select{background-color:transparent;color:var(--ink)}
+/* Topic and search fields share an unoutlined resting state. The complete
+   active field uses the member accent, or a neutral day/night outline. */
+:root[data-liquid-glass=true] :is(.topic-picker select,.conversation-search>form),:root[data-liquid-glass=true] .file-preview-workspace :is(.topic-picker select,.conversation-search>form){border:1px solid transparent;outline:0;box-shadow:none;background-color:rgb(255 255 255 / 3%);backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--navigation-filter)}
+:root[data-liquid-glass=true] :is(.topic-picker select:focus,.topic-picker select:open,.conversation-search>form:focus-within),:root[data-liquid-glass=true] .file-preview-workspace :is(.topic-picker select:focus,.topic-picker select:open,.conversation-search>form:focus-within){border-color:color-mix(in srgb,currentColor 26%,transparent);outline:0;box-shadow:none}
+:root[data-liquid-glass=true] .conversation-search :is(input,select,button):focus{outline:0;box-shadow:none}
+:root[data-liquid-glass=true] select::picker(select){background:transparent;backdrop-filter:var(--liquid-finish);border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .explorer-root select{background:transparent;box-shadow:none;color:inherit}
+:root[data-liquid-glass=true] select :is(option,optgroup){background:transparent;color:inherit}
+:root[data-liquid-glass=true] select option:is(:hover,:focus,:checked){background:color-mix(in srgb,var(--ink) 12%,transparent);color:inherit}
+:root[data-liquid-glass=true] .generated-file-card .generated-file{background:transparent}
+:root[data-liquid-glass=true] .generated-file-download{border-left-color:color-mix(in srgb,var(--ink) 10%,transparent)}
+:root[data-liquid-glass=true] :is(.generated-file-download,.attachment-chip button):not(.action-card-main):hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+
+/* Wallpaper, one full-height scrolling log, then floating glass controls. */
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat])>.workspace-header-surface{display:none}
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat])>.preview-workspace-bar{position:absolute;inset:0 0 auto;z-index:40;background:transparent;backdrop-filter:none;border-bottom:0}
+/* The log fills the space behind the toolbar. Only the non-chat side panels
+   reserve a fixed header row; message padding scrolls away with the messages. */
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat]) .file-preview-panel{margin-top:calc(var(--workspace-toolbar-height,42px) + 8px);padding-top:0}
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat]) .preview-panel-resizer{margin-top:calc(var(--workspace-toolbar-height,42px) + 8px)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.topic-panel{top:calc(var(--glass-header-space,0px) + 12px)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-top{position:absolute;top:var(--glass-top-offset,0px);left:0;right:0;z-index:6;background:transparent;border:0;box-shadow:none;backdrop-filter:none;isolation:isolate;overflow:visible}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-top::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:color-mix(in srgb,var(--bg) var(--workspace-header-opacity,74%),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish);border-bottom:1px solid var(--glass-rim);box-shadow:var(--glass-shadow)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-messages{position:relative;z-index:0;flex:1;padding-top:calc(var(--glass-header-space,0px) + 18px);padding-bottom:calc(var(--glass-composer-space,0px) + 24px);scroll-padding-top:calc(var(--glass-header-space,0px) + 12px);scroll-padding-bottom:calc(var(--glass-composer-space,0px) + 12px)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-composer{position:absolute;inset:auto 0 0;z-index:7;pointer-events:none;background:transparent}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-composer>*{pointer-events:auto}
+:root[data-liquid-glass=true] :is(.page-background .room .composer.room-input,.attention-bubble,.attention-bubble-panel){isolation:isolate;background:transparent;backdrop-filter:none;border-color:var(--glass-rim)}
+/* Match the header's dedicated glass backing. Foreground controls never join
+   the backdrop pass; wallpaper and scrolling messages share the same finish. */
+:root[data-liquid-glass=true] :is(.page-background .room .composer.room-input,.attention-bubble,.attention-bubble-panel)::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background-color:color-mix(in srgb,var(--chat-input-color,var(--surface)) var(--chat-input-opacity,100%),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--navigation-filter)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-jump{position:absolute;bottom:calc(var(--glass-composer-space,0px) + 10px);left:50%;transform:translateX(-50%);z-index:8;margin:0;white-space:nowrap;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish)}
+:root[data-liquid-glass=true] .page-background .room-line:not(.mine) :is(.room-bubble),:root[data-liquid-glass=true] .page-background .run-activity{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m,var(--surface))) var(--chat-reply-opacity,100%),transparent)}
+:root[data-liquid-glass=true] .page-background .room-line.mine .room-bubble{background-color:color-mix(in srgb,var(--chat-mine-color,var(--brand)) var(--chat-mine-opacity,100%),transparent)}
+:root[data-liquid-glass=true] .page-background :is(.room-bubble,.run-activity){--chat-reply-surface-opacity:var(--chat-reply-opacity,100%)}
+:root[data-liquid-glass=true] .page-background:not([data-chat-reply-custom=true]) :is(.room-line:not(.mine) .room-bubble,.run-activity){border-color:color-mix(in srgb,var(--m,var(--ink)) 24%,transparent)}
+/* The action strip shares the reply's optics while keeping a quieter rim. */
+:root[data-liquid-glass=true] .page-background .room-line:not(.mine) .answer-export{background:transparent;backdrop-filter:none;box-shadow:none;border:0}
+
+/* Separate rounded navigation panes share all material controls and keep
+   their existing tint and independently saved opacity. */
+:root[data-liquid-glass=true] :is(.app-shell>.sidebar,.standee-name,.cast-auto){--navigation-opacity:var(--sidebar-opacity,100%)}
+:root[data-liquid-glass=true] :is(.workspace-toolbar-glass,.workspace-header-surface),:root[data-liquid-glass=true] .room[data-glass-chat]>.room-top::before{--navigation-opacity:var(--workspace-header-opacity,74%)}
+:root[data-liquid-glass=true] :is(.app-shell>.sidebar,.standee-name,.cast-auto,.workspace-toolbar-glass,.workspace-header-surface),:root[data-liquid-glass=true] .room[data-glass-chat]>.room-top::before{background:color-mix(in srgb,var(--navigation-tint,var(--bg)) var(--navigation-opacity),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--navigation-filter);border:0;box-shadow:none}
+:root[data-liquid-glass=true] :is(.app-shell:not(.sidebar-hidden)>.sidebar,.standee-name,.cast-auto,.workspace-toolbar-glass){border:1px solid var(--navigation-outline);border-radius:var(--navigation-radius);box-shadow:var(--navigation-shadow)}
+:root[data-liquid-glass=true] :is(.standee-name,.cast-auto){color:var(--navigation-ink);text-shadow:var(--navigation-text-halo)}
+:root[data-liquid-glass=true] .standee-name small{color:inherit}
+
+/* Place the preview glass on a sibling backing layer: Chromium must not blur
+   an iframe or editor together with the wallpaper behind its ancestor. */
+:root[data-liquid-glass=true] :is(.file-preview-panel,.browser-sidebar){isolation:isolate;background:transparent;box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] :is(.file-preview-panel,.browser-sidebar)::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:color-mix(in srgb,var(--surface) var(--workspace-preview-opacity,45%),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish)}
+:root[data-liquid-glass=true] .workspace-terminal{background-color:color-mix(in srgb,#181916 var(--workspace-terminal-opacity,65%),transparent);color:#eee9df;border-top-color:rgb(255 255 255 / 14%)}
+:root[data-liquid-glass=true] .workspace-terminal :is(.terminal-header,.terminal-directory){background:rgb(255 255 255 / 3%);border-color:rgb(255 255 255 / 10%)}
+:root[data-liquid-glass=true] .workspace-terminal :is(.terminal-screen,.xterm-viewport){background:transparent!important}
+:root[data-liquid-glass=true] :is(.file-preview-panel,.browser-sidebar) :is(.preview-panel-header,.file-preview-toolbar,.workspace-document-tools,.workspace-file-status,.browser-panel-heading,.browser-navigation){background:rgb(255 255 255 / 5%);border-color:var(--glass-rim);box-shadow:none}
+:root[data-liquid-glass=true] .file-preview-panel .preview-tabs{background:transparent;box-shadow:none}
+:root[data-liquid-glass=true] .browser-navigation input{background:rgb(255 255 255 / 5%);border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .file-preview-panel :is(.preview-content-code,.workspace-code-editor){background:rgb(23 27 36 / 78%)}
+:root[data-liquid-glass=true] .file-preview-panel .preview-content-code>.syntax-code{background:transparent}
+:root[data-liquid-glass=true] .preview-workspace-bar .preview-toggle.has-files{border-color:var(--focus);outline:1px solid var(--focus);outline-offset:-1px}
+
+:root[data-liquid-glass=true] .modal.settings-modal{overflow:hidden;background-color:transparent;border-color:var(--glass-rim);box-shadow:var(--glass-shadow)}
+:root[data-liquid-glass=true] .settings-modal .settings-layout{border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .settings-modal :is(.settings-nav,.modal-footer,.settings-content){background:transparent;color:var(--ink)}
+:root[data-liquid-glass=true] .settings-modal :is(section,fieldset,details,.settings-layout,.settings-nav,.settings-content,.modal-body,.modal-footer,.toggle-row,.settings-nav-note,.running-version,.catalog-login,.compatibility-details,.char-card,.card-preview,.chat-appearance-preview,.info-card,.segmented){background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] .settings-modal :is(.field input:not([type=range]):not([type=checkbox]):not([type=color]),.field textarea,.field select,.themed-select-trigger){background:transparent;border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%)}
+:root[data-liquid-glass=true] .settings-modal :is(button:not(.swatch,.danger-solid),summary,.field input:not([type=range]):not([type=checkbox]):not([type=color]),.field textarea,.field select,.themed-select-trigger){background:transparent;background-image:none;box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] .settings-modal :is(button:not(.swatch,.danger-solid),summary,.field input:not([type=range]):not([type=checkbox]):not([type=color]),.field textarea,.field select,.themed-select-trigger):not(:disabled):is(:hover,:focus-visible){background:color-mix(in srgb,currentColor 8%,transparent)}
+:root[data-liquid-glass=true] .settings-modal .settings-nav-group>button.selected{color:var(--focus);box-shadow:inset 2px 0 var(--focus)}
+:root[data-liquid-glass=true] .settings-modal .button.primary{color:var(--focus)}
+:root[data-liquid-glass=true] .settings-modal .button.danger-solid{background:var(--bad);color:#fff}
+:root[data-liquid-glass=true] .settings-modal .button.danger-solid:not(:disabled):is(:hover,:focus-visible){background:color-mix(in srgb,var(--bad) 85%,#000);color:#fff}
+:root[data-liquid-glass=true] .settings-modal .segmented.has-indicator::before{background:transparent;box-shadow:inset 0 -2px var(--focus)}
+:root[data-liquid-glass=true] .topic-panel .topic-item{background:transparent;border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .topic-panel .topic-item.selected{border-color:var(--focus);box-shadow:0 0 0 1px color-mix(in srgb,var(--focus) 45%,transparent)}
+:root[data-liquid-glass=true] .topic-panel :is(.topic-panel-tools,.topic-panel-note){border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .topic-panel .topic-actions-danger{border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .settings-modal .appearance-settings :is(.settings-group,.toggle-row){box-shadow:none}
+:root[data-liquid-glass=true] :is(.settings-modal,.topic-panel,.topic-dialog) :is(.button.secondary,.button.quiet,.icon-button){box-shadow:none}
+:root[data-liquid-glass=true] :is(.settings-modal,.topic-panel,.topic-dialog) .button:hover:not(:disabled){transform:none}
+:root[data-liquid-glass=true] .topic-panel :is(.summarizer select,.topic-rename,.topic-badge:not(.current)){background:transparent;border-color:var(--glass-rim)}
+
+/* Text details keep the existing shared, readable tint without extra filters. */
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) :is(.md-code,.md-table){border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%);backdrop-filter:none}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-code :is(.syntax-code,pre){background:transparent;color:inherit}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity,.answer-export) .md-code-bar{background:transparent;border-bottom:1px solid rgb(255 255 255 / 8%)}
+:root[data-liquid-glass=true] .answer-export>.md-code-bar{border-bottom:0}
+:root[data-liquid-glass=true] .answer-export :is(summary,.md-code-bar>button,.room-tools>button,.reaction-add,.reaction-chip):not(.glass-action){color:inherit;background:transparent}
+:root[data-liquid-glass=true] .answer-export :is(summary,button):not(.glass-action):hover,:root[data-liquid-glass=true] .answer-export details[open]>summary:not(.glass-action){background:color-mix(in srgb,currentColor 10%,transparent);color:inherit}
+:root[data-liquid-glass=true] .answer-export .reaction-chip{border-color:color-mix(in srgb,currentColor 20%,transparent)}
+:root[data-liquid-glass=true] .answer-export .reaction-chip.mine{background:color-mix(in srgb,currentColor 12%,transparent);border-color:color-mix(in srgb,currentColor 35%,transparent)}
+:root[data-liquid-glass=true] .answer-export :is(.answer-export-menu,.reaction-picker){border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-table th{background:transparent}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) :is(.md-code,.md-table) :is(*){text-shadow:none}
+:root[data-liquid-glass=true] .room-bubble .markdown :not(pre)>code{background:color-mix(in srgb,var(--chat-reply-ink,var(--ink)) 14%,transparent);border:1px solid color-mix(in srgb,var(--chat-reply-ink,var(--ink)) 18%,transparent);border-radius:var(--r-xs);padding:0 4px;color:inherit;text-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] .run-activity :is(.runtime-diagnostics,.activity-tool,.activity-text,.activity-code){border:1px solid var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 7%)}
+:root[data-liquid-glass=true] .run-activity :is(.activity-code pre,.activity-text pre,.activity-code>small,.runtime-diagnostics>summary,.runtime-diagnostics>summary span){background:transparent;color:inherit}
+:root[data-liquid-glass=true] .run-activity .activity-toolbar button.selected{background:color-mix(in srgb,currentColor 10%,transparent);color:inherit;box-shadow:none}
+
+:root[data-liquid-glass=true] [data-liquid-pressed]{box-shadow:var(--liquid-pressed-shadow)}
+/* The rim and the filtered backing share one clipped rounded shape. */
+html:root[data-liquid-glass=true] :is(.member-notice,.workspace-toast){background:transparent;backdrop-filter:none}
+html:root[data-liquid-glass=true] :is(.member-notice,.workspace-toast)::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:color-mix(in srgb,var(--navigation-tint,var(--bg)) var(--notice-opacity,var(--workspace-header-opacity,74%)),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--navigation-filter)}
+html:root[data-liquid-glass=true] .member-notice{--notice-opacity:min(100%,calc(var(--workspace-header-opacity,74%) + 10%))}
+
+
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-keyword,.hljs-selector-tag,.hljs-literal){color:color-mix(in srgb,currentColor 60%,#9c57c9)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-string,.hljs-regexp,.hljs-addition){color:color-mix(in srgb,currentColor 60%,#4b9f6b)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-number,.hljs-symbol,.hljs-attr){color:color-mix(in srgb,currentColor 60%,#bf7e35)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-title,.hljs-section,.hljs-type,.hljs-built_in,.hljs-class){color:color-mix(in srgb,currentColor 60%,#478fc1)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-meta,.hljs-tag,.hljs-name,.hljs-variable,.hljs-template-variable,.hljs-deletion){color:color-mix(in srgb,currentColor 60%,#c96e86)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-comment,.hljs-quote){color:color-mix(in srgb,currentColor 70%,transparent)}
+
+/* Menus and dialogs share glass optics and their own opacity, including portals. */
+:root[data-liquid-glass=true] :is(.topic-panel,.context-menu,.model-popover,.select-popover,.workspace-menu-content,.room-mentions,.workspace-glass-drawer,.modal,.modal.settings-modal,.answer-export .answer-export-menu,.answer-export .reaction-picker,[role=menu],[role=dialog]){--ink:var(--navigation-ink);--ink-2:var(--navigation-muted);--ink-3:var(--navigation-subtle);background:var(--navigation-menu-background);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--navigation-filter);color:var(--navigation-ink)}
+:root[data-liquid-glass=true] select::picker(select){background:var(--navigation-menu-background);backdrop-filter:var(--navigation-filter);color:var(--navigation-ink)}
+:root[data-liquid-glass=true] .room-mentions button:is(.selected,:hover){background:color-mix(in srgb,currentColor 10%,transparent)}
+
+/* A slightly deeper tint keeps the topic panel readable at the same menu alpha. */
+:root[data-liquid-glass=true] .room>.topic-panel{background:color-mix(in srgb,color-mix(in srgb,var(--navigation-tint,var(--bg)) 85%,#0f1216) var(--glass-menu-opacity,74%),transparent)}
+
+/* Project meetings reuse chat surfaces. The frame stays clear so their glass
+   samples the wallpaper, rather than an opaque board-coloured ancestor. */
+:root[data-liquid-glass=true] .project-room{background:transparent}
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat]) .project-room{padding-top:calc(var(--workspace-toolbar-height,42px) + 6px)}
+:root[data-liquid-glass=true] .project-room .project-room-grid>.room-embedded{background:transparent;box-shadow:none;border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .project-room .room[data-glass-chat]>.room-messages{background:transparent}
+/* Project reports and their action footer reserve space instead of floating over the discussion. */
+:root[data-liquid-glass=true] .project-room .room[data-glass-chat]>:is(.room-top,.room-composer){position:relative;inset:auto;flex:none}
+:root[data-liquid-glass=true] .project-room .room[data-glass-chat]>.room-messages{padding-top:12px;padding-bottom:12px;scroll-padding:12px}
+:root[data-liquid-glass=true] .project-room .room[data-glass-chat]>.room-composer:has(.flow-dock.full){flex:1 1 auto;min-height:0}
+:root[data-liquid-glass=true] .project-room .room-empty{background-color:color-mix(in srgb,var(--surface) var(--welcome-card-opacity,45%),transparent)}
+/* Non-chat panels use the active toolbar material; nested cards share that
+   pane instead of stacking another opaque fill or another backdrop filter. */
+:root[data-liquid-glass=true] .project-room :is(.board,.project-progress,.project-side-rail,.flow-dock){background:color-mix(in srgb,var(--navigation-tint,var(--bg)) var(--glass-menu-opacity,74%),transparent);background-image:none;backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--navigation-filter);border-color:var(--glass-rim);box-shadow:none;color:var(--navigation-ink)}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(.meeting-card,.lead-picker,.dock-row,.plan-rounds>li,.task-tile,.progress-counts,.progress-flow,.progress-detail-record,.plan-changes,.requested-check,.review-disputes>div,.completion-report,.supplement-receipts){background:transparent;box-shadow:none}
+:root[data-liquid-glass=true] .project-room :is(.flow-steps li:not(.current):not(.paused):not(.cancelled),.project-room-numbers>span:not(.needs-user),.board-rounds button,.project-side-bar .segmented){background:transparent;box-shadow:none;border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(.plan-revise textarea,.round-reject textarea,.round-actions select,.plan-review-level select,.review-disputes select){background:transparent;border-color:var(--glass-rim)}
+/* Controls share the panel backing; they do not refract the text behind them again. */
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(button,summary,select){position:relative;z-index:1;border:1px solid var(--glass-rim);border-radius:var(--r-sm);background-image:none;backdrop-filter:none;box-shadow:none}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(button,summary,select):not(.primary):not(.on):not(.selected):not(.flow-message-title){background-color:color-mix(in srgb,var(--surface) 12%,transparent)}
+:root[data-liquid-glass=true] .project-room .project-side-bar .segmented{background:transparent;border:0;box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] .project-room .project-side-bar .segmented button{border:1px solid var(--glass-rim);border-radius:var(--r-sm)}
+:root[data-liquid-glass=true] .project-room .project-side-bar .segmented button.selected{background-color:color-mix(in srgb,var(--surface) 24%,transparent);border-color:color-mix(in srgb,currentColor 45%,transparent)}
+:root[data-liquid-glass=true] .project-room .flow-steps li{background-color:color-mix(in srgb,var(--surface) 12%,transparent);box-shadow:none;z-index:0}
+:root[data-adaptive-text=true] .project-review-level :is(select,option){text-shadow:none!important;filter:none}
+html:root[data-liquid-glass=true] .project-review-level select::picker(select),html:root[data-liquid-glass=true][data-adaptive-text=true] .project-review-level select::picker(select){background:color-mix(in srgb,var(--adaptive-picker-surface,var(--surface)) var(--glass-menu-opacity,74%),transparent);color:var(--adaptive-ink,var(--ink));text-shadow:none;backdrop-filter:var(--navigation-filter)}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) .flow-dock-toggle:hover{background:color-mix(in srgb,currentColor 6%,transparent)}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) .round-conflicts{background:color-mix(in srgb,var(--warn) 8%,transparent)}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(.round-conflicts.bad,.meeting-alert){background:color-mix(in srgb,var(--bad) 8%,transparent)}
+
+/* System accessibility preferences apply to every glass family, including
+   opt-out glass mode, floating controls and backgrounds behind the sidebar. */
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  :root :is(.file-preview-panel,.browser-sidebar)::before{display:none}
+  :root :is(.composer.room-input,.attention-bubble,.attention-bubble-panel)::before{display:none}
+  :root .workspace-glass-drawer{background:var(--surface)!important;backdrop-filter:none!important;color:var(--ink)!important}
+  :root :is([data-liquid-surface],.sidebar,.workspace-header-surface,.workspace-toolbar-glass,.preview-workspace-bar,.room-top,.composer,.attention-bubble,.attention-bubble-panel,.room-bubble,.answer-export,.approval-card,.run-activity,.room-empty,.room-jump,.modal,.context-menu,.model-popover,.select-popover,.file-preview-panel,.browser-sidebar,.preview-tab,.workspace-terminal,.topic-panel,.home-action,.standee-name,.cast-auto,.standee-nameplate,.home-projects,.button.secondary,.button.quiet,.icon-button,.composer-model,.sidebar-edge-toggle,.desk-folder-option,.settings-group,.preview-panel-header,.preview-tabs,.desk-file-tree,.segmented,.explorer-root,.generated-file-card,.attachment-chip,.topic-picker select,.md-code,.md-table,.roster-with-desk.selected){background:var(--surface)!important;backdrop-filter:none!important;--liquid-refraction:none; color:var(--ink)!important;}
+  :root .room-top::before{background:var(--surface)!important;backdrop-filter:none!important;box-shadow:none!important}
+  :root select::picker(select){background:var(--surface)!important;color:var(--ink)!important;backdrop-filter:none!important}
+  :root :is(.home-background,.room-backdrop){visibility:hidden}
+  :root .standee-home{background:var(--surface);color:var(--ink)}
+  :root :is(.workspace-terminal,.workspace-terminal .terminal-header,.workspace-terminal .terminal-directory,.md-code){background:#181916!important;color:#eee9df!important}
+  :root .answer-export :is(.answer-export-menu,.reaction-picker){background:var(--surface)!important;color:var(--ink)!important;backdrop-filter:none!important}
+  :root :is(.workspace-menu-content,.room-mentions,[role=menu],[role=dialog]){background:var(--surface)!important;color:var(--ink)!important;backdrop-filter:none!important}
+  :root .room[data-glass-chat]>.room-top{background:var(--surface)!important}
+  :root .modal-overlay{backdrop-filter:none!important;background:rgb(0 0 0 / 70%)}
+  :root .project-room :is(.board,.project-progress,.project-side-rail,.flow-dock){background:var(--surface)!important;backdrop-filter:none!important;color:var(--ink)!important}
+}
+@media(prefers-contrast:more){
+  :root{--ink-2:var(--ink);--ink-3:var(--ink)}
+  :root :is(.room-bubble,.composer,.attention-bubble,.attention-bubble-panel,.sidebar,.modal,.context-menu,.model-popover,.home-action,.button,.room-top,.file-preview-panel,.browser-sidebar){border-color:var(--ink)!important;box-shadow:none!important}
+  :root :is(.room,.sidebar,.standee-home,.modal,.context-menu){text-shadow:none!important}
+}
+
+/* Permission requests share reply optics with a slightly stronger reading surface. */
+:root[data-liquid-glass=true] .page-background .approval-card{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m,var(--surface))) min(100%,calc(var(--chat-reply-opacity,100%) + 8%)),transparent);border-radius:var(--r-lg);box-shadow:var(--glass-shadow),0 6px 20px -8px rgb(0 0 0 / 32%)}
+
+
+:root[data-liquid-glass=true] .button.primary:hover:not(:disabled){background:var(--brand-primary-hover)}
+:root[data-liquid-glass=true] .button.primary:active:not(:disabled){background:var(--brand-primary-pressed)}
+:root[data-liquid-glass=true] :is(.topic-picker select,.conversation-search select,.conversation-search button):focus-visible{outline:var(--focus-ring);outline-offset:var(--focus-ring-offset)}
+
+:root[data-liquid-glass=true] .file-preview-workspace .conversation-search>form{border-color:color-mix(in srgb,currentColor 16%,transparent)}
+:root[data-liquid-glass=true] .file-preview-workspace .conversation-search>form:focus-within{border-color:color-mix(in srgb,currentColor 26%,transparent)}
+
+:root .run-activity>summary{background:transparent;box-shadow:none;backdrop-filter:none;border-radius:inherit}
+:root .answer-export{background:transparent;backdrop-filter:none;box-shadow:none;border:0}
+:root[data-liquid-glass=true] :is(.attention-bubble,.attention-bubble-panel){box-shadow:var(--glass-shadow)}
+
+/* Card contents share their parent's single glass backing. */
+:root .glass-content-action,:root .sidebar .glass-content-action{background:none;backdrop-filter:none;box-shadow:none}
+:root .sidebar .project-tree-row{display:flex;align-items:center;gap:0;padding-right:6px}
+:root .sidebar .project-tree-row .list-row-main{align-self:stretch;padding-block:0}
+
+:root :is(.preview-tab,.generated-file-card,.attachment-chip,.member-notice,.workspace-toast) .glass-content-action{background:none;backdrop-filter:none!important;box-shadow:none!important}
+/* Settings pages added later (存储, 人物设定) use the same glass treatment as the rest of the settings window:
+   transparent cards edged by the glass rim, and the persona section dialog (rendered outside the settings
+   window) gets the settings rules for fields and buttons. */
+:root[data-liquid-glass=true] .settings-modal :is(.persona-card,.persona-codes,.persona-section,.storage-item,.storage-desk){background:transparent;background-image:none;border-color:var(--glass-rim);box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] .settings-modal :is(.persona-card[open],.persona-section:hover,.storage-desk[open]){border-color:color-mix(in srgb,currentColor 22%,var(--glass-rim))}
+:root[data-liquid-glass=true] .settings-modal :is(.storage-row,.persona-code){border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .settings-modal .storage-bar{background:color-mix(in srgb,currentColor 10%,transparent)}
+:root[data-liquid-glass=true] .persona-section-dialog :is(.field input:not([type=range]):not([type=checkbox]):not([type=color]),.field textarea,.field select){background:transparent;border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%);color:var(--ink)}
+:root[data-liquid-glass=true] .persona-section-dialog :is(.modal-body,.modal-footer){background:transparent;border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .persona-section-dialog :is(.button.secondary,.button.quiet,.icon-button){background:transparent;border-color:var(--glass-rim);box-shadow:none}
+:root[data-liquid-glass=true] .persona-section-dialog :is(button,.field textarea,.field input,.field select):not(:disabled):is(:hover,:focus-visible){background:color-mix(in srgb,currentColor 8%,transparent)}
+:root[data-liquid-glass=true] .persona-section-dialog .button.primary{background:transparent;border-color:var(--glass-rim);color:var(--focus)}
+/* Remaining settings surfaces that kept an opaque fill under liquid glass. */
+:root[data-liquid-glass=true] .settings-modal :is(.profile-card,.provider-settings,.network-option,.data-directory){background:transparent;background-image:none;border-color:var(--glass-rim);box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] .settings-modal .network-option.selected{border-color:color-mix(in srgb,var(--focus) 55%,var(--glass-rim));background:color-mix(in srgb,var(--focus) 8%,transparent)}
+:root[data-liquid-glass=true] .settings-modal .address-row{background:transparent;background-image:none;border-color:var(--glass-rim);box-shadow:none}
+:root[data-liquid-glass=true] .room-system{background-color:color-mix(in srgb,var(--surface) 28%,transparent);border-color:var(--glass-rim);backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish,var(--glass-finish-default))}
+
+/* Project content uses one backing per panel, with dividers instead of nested glass cards. */
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(.flow-dock-actions,.flow-dock-body .meeting-card,.board-lane,.task-tile,.round-results,.result-preview,.plan-rounds>li){background:transparent;backdrop-filter:none;box-shadow:none}
+:root[data-liquid-glass=true] .project-room .board-lane{border-radius:0;border-top:1px solid var(--line);padding:8px 0}
+:root[data-liquid-glass=true] .project-room .task-tile{border-width:0 0 0 2px;border-radius:0}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(.flow-message-title,.flow-dock-toggle,.plan-card-title){background:transparent;border:0;box-shadow:none;backdrop-filter:none}
+:root[data-liquid-glass=true] :is(.project-room,.flow-dock-modal) :is(.flow-dock-content,.board-lanes) :is(.md-code,.md-table,.markdown blockquote,.result-preview pre){backdrop-filter:none;box-shadow:none}
+:root[data-liquid-glass=true] .project-room-summary .project-room-numbers>span{background:transparent;border:0;box-shadow:none}
+
+/* A decision title is text inside the message, not a highlighted control. */
+:root .project-room .flow-message-title,:root .project-room .flow-message-title:hover,:root .project-room .flow-message-title:active { background:transparent;border:0;box-shadow:none;backdrop-filter:none; }

@@ -1,0 +1,36 @@
+/* Task list card (L2): sits with the activity bar above the reply. Expansion uses the shared details transition;
+   ticks change colour over --motion-fast, never in one frame. */
+.task-list-card{margin:8px 0;width:min(100%,780px);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);color:var(--ink);overflow:hidden;animation:task-list-in var(--motion-base) var(--ease-out) both}
+.task-list-card>summary{display:flex;align-items:center;gap:7px;padding:9px 11px;cursor:pointer;color:var(--ink-2);font-size:var(--fs-sm);list-style:none;transition:color var(--motion-instant) var(--ease-out)}
+.task-list-card>summary::-webkit-details-marker{display:none}
+.task-list-card>summary:hover{color:var(--ink)}
+.task-list-card>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:var(--r-md)}
+.task-list-card>summary>strong{font-weight:var(--fw-semibold);color:inherit}
+.task-list-card>summary>svg:last-child{margin-left:2px;transition:transform var(--motion-fast) var(--ease-out)}
+.task-list-card[open]>summary>svg:last-child{transform:rotate(180deg)}
+.task-list-card[open]>summary{border-bottom:1px solid var(--line)}
+.task-list-count{margin-left:auto;font-size:var(--fs-xs);font-variant-numeric:tabular-nums}
+.task-list-progress{position:relative;width:64px;height:4px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 16%,transparent);overflow:hidden}
+.task-list-progress>span{position:absolute;inset:0 auto 0 0;border-radius:inherit;background:var(--status-ok,var(--ok));transition:width var(--motion-base) var(--ease-out)}
+.task-list-items{list-style:none;margin:0;padding:6px 11px 9px;display:flex;flex-direction:column;gap:3px}
+.task-list-item{display:flex;align-items:flex-start;gap:8px;padding:3px 0;font-size:var(--fs-sm);line-height:1.5;color:inherit;animation:task-list-in var(--motion-base) var(--ease-out) both}
+.task-list-item>svg{flex:none;margin-top:3px;color:var(--ink-3);transition:color var(--motion-fast) var(--ease-out)}
+.task-list-item>span{flex:1;min-width:0;overflow-wrap:anywhere;transition:color var(--motion-fast) var(--ease-out)}
+.task-list-item.completed>span{color:var(--ink-3);text-decoration:line-through;text-decoration-color:color-mix(in srgb,currentColor 55%,transparent)}
+.task-list-item.completed>svg{color:var(--status-ok,var(--ok))}
+.task-list-item.in_progress>span{font-weight:var(--fw-semibold)}
+.task-list-item.in_progress>svg{color:var(--focus)}
+.task-list-spin{animation:task-list-spin 1.1s linear infinite}
+.task-list-card .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@keyframes task-list-spin{to{transform:rotate(360deg)}}
+@keyframes task-list-in{from{opacity:0;transform:translateY(calc(var(--motion-shift-sm) * var(--motion-distance)))}}
+
+/* Chat appearance and liquid glass: the same optics, tint and opacity as the activity bar beside it. */
+.page-background .task-list-card{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m-soft,var(--surface))) var(--chat-reply-opacity,100%),transparent);color:var(--chat-reply-ink,var(--ink))}
+:root[data-liquid-glass=true] .page-background .task-list-card{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m,var(--surface))) var(--chat-reply-opacity,100%),transparent);backdrop-filter:var(--liquid-refraction,var(--glass-refraction-default)) var(--liquid-finish,var(--glass-finish-default));border-color:var(--glass-rim);box-shadow:var(--glass-shadow);background-image:none}
+:root[data-liquid-glass=true] .page-background:not([data-chat-reply-custom=true]) .task-list-card{border-color:color-mix(in srgb,var(--m,var(--ink)) 24%,transparent)}
+:root[data-liquid-glass=true] .page-background .task-list-card :is(summary,.task-list-item>span){color:inherit}
+:root[data-liquid-glass=true] .page-background .task-list-card>summary{color:color-mix(in srgb,currentColor 82%,transparent)}
+:root[data-liquid-glass=true] .page-background .task-list-card[open]>summary{border-bottom-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .page-background .task-list-item.completed>span{color:color-mix(in srgb,currentColor 60%,transparent)}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){:root .page-background .task-list-card{background:var(--surface)!important;backdrop-filter:none!important;color:var(--ink)!important}}

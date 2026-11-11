@@ -1,0 +1,2 @@
+export type FileReference={source:'generated'|'attachment'|'workspace'|'explorer';id:string;name?:string;path?:string;resource?:string};
+export type FilePreviewData={name:string;kind:'html'|'audio'|'video'|'markdown'|'text'|'word'|'image'|'pdf'|'spreadsheet'|'slides'|'unsupported';content?:string;blocks?:{text:string;heading:number}[];language?:string;reason?:string;base64?:string;dataUrl?:string;previewUrl?:string;sheets?:{name:string;rows:string[][]}[];slides?:string[][]};

@@ -1,0 +1,21 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdirSync,writeFileSync,readdirSync,readFileSync,existsSync} from 'node:fs';
+import path from 'node:path';
+import {DEFAULT_SETTINGS} from '../src/shared/defaults';
+import {NativePlugins} from '../src/backend/native-plugins';
+import {NativeSkills} from '../src/backend/native-skills';
+
+test('Codex native skills install, enable, disable, protected scopes, archived removal and reinstall use the actual native API without a model turn',async()=>{
+ assert.ok(process.env.HIVELAB_TEST_PROFILE);const data=process.env.HIVELAB_DATA_DIR!,settings={...DEFAULT_SETTINGS,paths:{codex:path.resolve('node_modules/@openai/codex/bin/codex.js')}},native=new NativePlugins(data,()=>settings,()=>[],()=>{}),skills=new NativeSkills(data,()=>settings,native),source=path.join(data,'source');mkdirSync(source);writeFileSync(path.join(source,'SKILL.md'),'---\nname: agent-test-skill\ndescription: A test-only native skill.\n---\nUse only for this integration fixture.\n');
+ try{const preview=skills.preview('codex',source);let catalog=await skills.change('install',{token:preview.token});let item=catalog.items.find(i=>i.name==='agent-test-skill')!;assert.ok(item);assert.equal(item.enabled,true);assert.equal(item.canToggle,true);assert.equal(item.canRemove,true);const system=catalog.items.find(i=>i.scope==='system');if(system){assert.equal(system.canToggle,false);assert.equal(system.canRemove,false);await assert.rejects(skills.change('remove',{provider:'codex',id:system.id}),/不能在这里卸载/);}
+  await assert.rejects(skills.change('remove',{provider:'codex',id:item.id}),/先停用/);catalog=await skills.change('toggle',{provider:'codex',id:item.id,enabled:false});assert.equal(catalog.items.find(i=>i.id===item.id)?.enabled,false);const updated=skills.preview('codex',source);assert.equal(updated.update?.locallyModified,false);catalog=await skills.change('install',{token:updated.token});assert.equal(catalog.items.find(i=>i.id===item.id)?.enabled,false,'updating retains a disabled skill');assert.ok(readdirSync(path.join(data,'native-skills/updated')).length>0);catalog=await skills.change('remove',{provider:'codex',id:item.id});assert.ok(!catalog.items.some(i=>i.id===item.id));const archives=path.join(data,'native-skills/removed');assert.ok(readdirSync(archives).some(dir=>readFileSync(path.join(archives,dir,'SKILL.md'),'utf8').includes('agent-test-skill')));const again=skills.preview('codex',source);catalog=await skills.change('install',{token:again.token});item=catalog.items.find(i=>i.name==='agent-test-skill')!;assert.equal(item.enabled,true);await skills.change('toggle',{provider:'codex',id:item.id,enabled:false});await skills.change('remove',{provider:'codex',id:item.id});
+ }finally{await skills.settled;await native.close();}
+});
+
+test('DSH and Claude skills are isolated directory observations with unknown loading status; common state and source snapshots are not silently modified',async()=>{
+ const data=process.env.HIVELAB_DATA_DIR!,native=new NativePlugins(data,()=>DEFAULT_SETTINGS,()=>[],()=>{}),skills=new NativeSkills(data,()=>DEFAULT_SETTINGS,native);
+ try{for(const provider of ['dsh','claude']){const root=skills.directory(provider),dir=path.join(root,'only-'+provider);mkdirSync(dir,{recursive:true});writeFileSync(path.join(dir,'SKILL.md'),`---\nname: only-${provider}\ndescription: Only for ${provider}.\n---\nInstructions.`);const catalog=await skills.list(provider);assert.equal(catalog.items.length,1);assert.equal(catalog.items[0].name,'only-'+provider);assert.equal(catalog.items[0].enabled,null);assert.equal(catalog.items[0].canToggle,false);assert.equal(catalog.canInstall,false);}
+  assert.throws(()=>skills.directory('unknown'),/只支持/);const source=path.join(data,'changed-skill');mkdirSync(source);writeFileSync(path.join(source,'SKILL.md'),'---\nname: changed-skill\ndescription: Snapshot validation.\n---\nBefore.');const preview=skills.preview('codex',source);writeFileSync(path.join(source,'extra.md'),'After preview');await assert.rejects(skills.change('install',{token:preview.token}),/内容在预览后变化/);assert.equal(existsSync(path.join(skills.directory('codex'),'changed-skill')),false);
+ }finally{await native.close();}
+});

@@ -1,0 +1,15 @@
+{
+  "apiVersion": 1,
+  "id": "hello-plugin",
+  "name": "示例：本地问候工具",
+  "version": "1.0.0",
+  "description": "演示 HiveLab 合屋 插件工具调用。只返回文字，不操作文件或网络。",
+  "entry": "index.mjs",
+  "tools": [
+    {
+      "name": "greet",
+      "description": "向指定名字返回一句问候。",
+      "inputSchema": {"type":"object","properties":{"name":{"type":"string"}},"required":["name"],"additionalProperties":false}
+    }
+  ]
+}

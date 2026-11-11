@@ -1,0 +1,5 @@
+.room-capability-button {white-space:nowrap;}
+.room-capability-button[aria-pressed="true"] {background:color-mix(in srgb,var(--brand) 12%,var(--surface));color:var(--brand);border-color:var(--brand);}
+.room-top:has(>.room-header-details:empty) {display:none;}
+.room-header-details>.project-room-subbar {margin-top:8px;}
+.room-topic-bar>:is(.desk-new-topic,.topic-more){display:grid;place-items:center;flex:none;width:32px;height:32px;padding:0;border:1px solid var(--glass-rim,var(--line));border-radius:var(--r-sm);background-color:transparent;box-shadow:inset 0 1px 0 rgb(255 255 255 / 14%)}

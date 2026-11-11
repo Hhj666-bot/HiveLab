@@ -1,0 +1,13 @@
+/* The live page lies above the copies, so what stays in place keeps its glass over them. */
+.page-turn{position:relative;display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
+.page-turn-live{position:relative;z-index:1;display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
+.page-turn-ghost{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;pointer-events:none}
+.page-turn-filters{position:absolute;width:0;height:0}
+/* A copy shows the page as it stood; replaying its entrances would make it flash. */
+.page-turn-ghost,.page-turn-ghost *,.page-turn-ghost *::before,.page-turn-ghost *::after{animation:none!important;transition:none!important}
+/* The old composer only hands over its words and colours; its surface is already there, in the live page. */
+.page-turn-pinned{z-index:2}
+:root .page-turn-pinned :is(.composer,.room-composer){background:none!important;border-color:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
+.page-turn-pinned .composer::before,.page-turn-pinned .composer::after{display:none}
+/* Without floating glass the composer sits in the page's flow; the turning messages pass behind it there too. */
+:root:not([data-liquid-glass=true]) .page-turn .room>.room-composer{position:relative;z-index:1}

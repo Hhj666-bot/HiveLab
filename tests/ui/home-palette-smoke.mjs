@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import {chromium,expect} from '@playwright/test';
+import {createServer} from '../../scripts/ui-test-server.mjs';
+import {emptyTextToneCache,updateTextToneCache} from '../../src/shared/adaptive-text-cache.ts';
+import {defaultBackground} from '../../src/shared/background.ts';
+
+const server=await createServer({server:{host:'127.0.0.1',port:0},logLevel:'error'});await server.listen();
+const browser=await chromium.launch({channel:'msedge',headless:true});
+try{
+  const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),errors=[];
+  page.on('pageerror',error=>{errors.push(error.message);console.error(error.message);});
+  let cache=emptyTextToneCache(),captures=0,writes=0;
+  await page.exposeFunction('fixtureReadTextCache',()=>cache);
+  await page.exposeFunction('fixtureWriteTextCache',({context,tones})=>{writes++;cache=updateTextToneCache(cache,context,tones);return {saved:true};});
+  await page.exposeFunction('fixtureContrastFrame',async()=>{captures++;return {dataUrl:'data:image/png;base64,'+(await page.screenshot()).toString('base64')};});
+  await page.exposeFunction('fixtureBackground',async()=>{await new Promise(resolve=>setTimeout(resolve,450));return {...defaultBackground('home'),mode:'plain',dim:0,blur:0,headerTransparency:100,previewTransparency:80,terminalTransparency:80};});
+  const selectors=['.home-toolbar-greeting','.home-toolbar-actions button:first-child','.standee-name strong','.cast-density','.cast-auto','.attention-bubble-number'];
+  await page.addInitScript(selectors=>{
+    localStorage.setItem('hivelab.appearance.adaptive-text','true');localStorage.setItem('hivelab.appearance.adaptive-text.dwell-seconds','0');localStorage.setItem('hivelab.appearance.adaptive-text.hold-seconds','0');
+    localStorage.setItem('hivelab.sidebar.layout',JSON.stringify({mode:'icons',width:268}));
+    window.paletteFrames=[];
+    const read=()=>selectors.map(selector=>{const node=document.querySelector(selector);return node?{selector,color:getComputedStyle(node).color,tone:node.closest('[data-adaptive-tone]')?.dataset.adaptiveTone}:null;});
+    window.readHomePalette=read;
+    const tick=()=>{const values=read();if(values.every(value=>value?.tone))window.paletteFrames.push(values);requestAnimationFrame(tick);};requestAnimationFrame(tick);
+  },selectors);
+  const url=server.resolvedUrls.local[0]+'tests/ui/home-palette-fixture.html';await page.goto(url);
+  await expect(page.getByRole('main',{name:'立绘首页',exact:true})).toBeAttached();
+  await page.waitForTimeout(1800);
+  assert.equal(captures,0,'startup movie must never be sampled as the homepage');
+  assert.equal(writes,0,'startup movie must never overwrite saved home colours');
+  let releaseWallpaper;
+  await page.route('**/late-wallpaper.svg',async route=>{await new Promise(resolve=>{releaseWallpaper=resolve;});await route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#f4f6f8"/></svg>'});});
+  await page.evaluate(()=>{const image=new Image();image.src='/late-wallpaper.svg';document.querySelector('.home-background').append(image);});
+  await page.evaluate(()=>window.fixtureDismiss());
+  await page.waitForTimeout(500);assert.equal(captures,0,'an unloaded wallpaper must not teach a temporary home palette');releaseWallpaper();
+  await expect(page.locator('.home-toolbar-greeting')).toHaveAttribute('data-adaptive-tone','dark');
+  await expect.poll(()=>Object.values(cache.contexts).some(entry=>Object.keys(entry.tones).some(key=>key.includes('home-footer')))).toBe(true);
+  await page.waitForTimeout(500);
+  const expected=await page.evaluate(()=>window.readHomePalette());
+  assert.ok(expected.every(value=>value?.tone));
+  const beforeCaptures=captures,beforeWrites=writes;
+  await page.reload();await expect(page.getByRole('main',{name:'立绘首页',exact:true})).toBeAttached();
+  await page.evaluate(()=>window.fixtureDismiss());
+  await page.evaluate(()=>{document.querySelector('.home-background').dispatchEvent(new Event('load'));window.dispatchEvent(new Event('focus'));});
+  await page.waitForTimeout(2200);
+  const frames=await page.evaluate(()=>window.paletteFrames);
+  assert.ok(frames.length>5);
+  for(const frame of frames)assert.deepEqual(frame,expected,'homepage palette must be restored before its first frame and stay unchanged');
+  assert.equal(captures,beforeCaptures,'cached static home must not recalibrate on startup, media load or focus');
+  assert.equal(writes,beforeWrites,'restoring a saved homepage must not replace its colours');
+  assert.deepEqual(errors,[]);
+  console.log('PASS: startup overlay excluded from colour learning; delayed saved background loads before first home paint; semantic footer colours survive restart; every home frame restores the saved palette without delayed recalibration.');
+}finally{await browser.close();await server.close();}

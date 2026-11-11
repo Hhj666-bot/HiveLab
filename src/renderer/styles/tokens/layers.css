@@ -1,0 +1,10 @@
+/* The window is a stack, the same with or without liquid glass. See docs/ui-layers.md.
+   Liquid glass only changes how a surface looks; it must never change where one sits. */
+:root {
+  --layer-wallpaper: -2;
+  --layer-interface: 40;
+  --layer-panel: 50;
+  --layer-notice: 60;
+  --layer-menu: 70;
+  --layer-bubble: 1000;
+}

@@ -1,0 +1,31 @@
+/* Motion serves comfort and reading: short, quiet, never competing with content.
+   Every state change keeps a fade or colour transition; only the "off" level is instant. */
+:root{
+ --motion-instant:90ms;--motion-fast:160ms;--motion-base:240ms;--motion-slow:320ms;--motion-page:420ms;--motion-ambient:1400ms;
+ --ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);--ease-drawer:cubic-bezier(.32,.72,0,1);
+ --motion-shift-sm:4px;--motion-shift:8px;--motion-shift-lg:16px;--motion-shift-max:24px;
+ --motion-scale-press:.97;--motion-scale-enter:.96;
+ --motion-stagger:40ms;--motion-delay-content:80ms;
+ /* Keyframes multiply their movement by this, so simplified motion becomes a plain fade. */
+ --motion-distance:1;
+}
+/* The opening has its own setting, so it stays out of these rules. */
+:root[data-motion='reduced']{--motion-distance:0}
+:root[data-motion='reduced'] :where(:not(#hivelab-startup,#hivelab-startup *)),
+:root[data-motion='reduced'] :where(:not(#hivelab-startup,#hivelab-startup *))::before,
+:root[data-motion='reduced'] :where(:not(#hivelab-startup,#hivelab-startup *))::after{transition-property:opacity,color,background-color,border-color,outline-color,fill,stroke!important}
+/* Adaptive text restores its colour in one frame, so reading text never flashes the wrong tone. */
+:root[data-motion='reduced'][data-adaptive-text=true] [data-adaptive-group],
+:root[data-motion='reduced'][data-adaptive-text=true] [data-adaptive-group] *{transition-property:opacity,background-color,border-color!important}
+:root[data-motion='reduced'] :is(.button,.icon-button,.composer-tool,.attach-button,.send-button,.row-more,.topic-more,.toast-dismiss):active{transform:none}
+:root[data-motion='reduced'] :is(.standee:hover,.standee:focus-within) .standee-art{transform:none}
+:root[data-motion='reduced'] :is(.avatar-breath,.roster-signal){animation-duration:5s}
+:root[data-motion='off'] :where(:not(#hivelab-startup,#hivelab-startup *)),
+:root[data-motion='off'] :where(:not(#hivelab-startup,#hivelab-startup *))::before,
+:root[data-motion='off'] :where(:not(#hivelab-startup,#hivelab-startup *))::after{animation-duration:0ms!important;animation-iteration-count:1!important;transition-duration:0ms!important}
+:root[data-motion='off'] details::details-content{transition-duration:0ms}
+/* The first frame, before a script has chosen a level. */
+@media (prefers-reduced-motion:reduce){
+ :root:not([data-motion]){--motion-distance:0}
+ :root:not([data-motion]) :where(:not(#hivelab-startup,#hivelab-startup *)){transition-property:opacity,color,background-color,border-color,outline-color,fill,stroke!important}
+}

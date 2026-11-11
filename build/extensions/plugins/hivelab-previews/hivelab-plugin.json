@@ -1,0 +1,11 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-previews",
+  "name": "文件与图片预览",
+  "description": "在 HiveLab 合屋 中预览图片、Markdown 和文本代码。",
+  "version": "1.0.0",
+  "tools": [],
+  "features": [
+    "filePreview"
+  ]
+}

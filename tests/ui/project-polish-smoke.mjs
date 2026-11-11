@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {chromium,expect} from '@playwright/test';
+import {createServer} from '../../scripts/ui-test-server.mjs';
+const server=await createServer({server:{host:'127.0.0.1',port:0},logLevel:'error'});await server.listen();
+const browser=await chromium.launch({channel:'msedge',headless:true});
+let page;
+try{
+ page=await browser.newPage({viewport:{width:1800,height:1100},reducedMotion:'reduce'});page.setDefaultTimeout(8000);const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.exposeFunction('fixtureContrastFrame',async()=>({dataUrl:'data:image/png;base64,'+(await page.screenshot()).toString('base64')}));
+ await page.addInitScript(()=>{localStorage.setItem('hivelab.appearance.adaptive-text','true');});
+ await page.goto(server.resolvedUrls.local[0]+'tests/ui/project-polish-fixture.html');
+ const project=page.getByRole('main',{name:'测试项目 的项目会议室',exact:true}),review=page.getByRole('combobox',{name:'项目复核程度',exact:true});
+ await expect(review).toBeVisible();await expect(page.locator('.flow-steps li')).toHaveCount(6);await expect(page.getByRole('button',{name:'调整会议室外观',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'外观',exact:true})).toHaveCount(1);
+ assert.equal(await page.locator('.project-room-head').count(),0,'empty header no longer paints a strip');assert.equal(await page.locator('#project-review-help').count(),0);assert.equal(await page.locator('.project-room-summary').evaluate(n=>getComputedStyle(n,'::before').content),'none');
+ const guest=page.locator('.room-presence-members .guest-chip').first();await expect(guest).toBeVisible();const size=await guest.evaluate(n=>{const s=getComputedStyle(n);return {height:n.getBoundingClientRect().height,radius:s.borderTopLeftRadius};});
+ for(const selector of ['.flow-steps li','.report-chip'])assert.ok(await page.locator(selector).evaluateAll((nodes,size)=>nodes.every(n=>Math.abs(n.getBoundingClientRect().height-size.height)<1&&getComputedStyle(n).borderTopLeftRadius===size.radius),size),selector+' matches member card height and radius');
+ const reports=page.getByRole('group',{name:'成员汇报列表',exact:true});await expect(reports.locator('button')).toHaveCount(32);assert.ok(await reports.evaluate(n=>n.scrollWidth>n.clientWidth&&getComputedStyle(n).overflowX==='auto'&&getComputedStyle(n).scrollbarWidth==='thin'));
+ await reports.locator('button').last().click();assert.equal(await page.evaluate(()=>window.lastReport),'past31');assert.ok(await reports.evaluate(n=>n.scrollLeft>0));
+ const tabs=page.getByRole('tablist',{name:'项目看板视图',exact:true});for(const tab of await tabs.getByRole('tab').all()){await expect(tab).not.toHaveAttribute('data-liquid-surface','');assert.equal(await tab.evaluate(n=>getComputedStyle(n).zIndex),'1');assert.equal(await tab.evaluate(n=>getComputedStyle(n).backdropFilter),'none');}
+ await page.getByRole('tab',{name:'项目进度',exact:true}).click();await expect(page.getByRole('complementary',{name:'项目进度',exact:true})).toBeVisible();await expect(page.getByRole('tab',{name:'项目进度',exact:true})).toHaveAttribute('aria-selected','true');await expect(page.getByRole('button',{name:'刷新保存记录',exact:true})).not.toHaveAttribute('data-liquid-surface','');assert.equal(await page.locator('.project-progress .task-meta').evaluate(n=>getComputedStyle(n).backdropFilter),'none');await page.getByRole('tab',{name:'本段工作',exact:true}).click();
+ for(const theme of ['light','dark']){
+  await page.evaluate(theme=>window.fixtureTheme(theme),theme);await expect(page.locator('html')).toHaveAttribute('data-theme',theme);await expect(page.locator('.project-review-level')).toHaveAttribute('data-adaptive-group','review-control');
+  const style=await review.evaluate(n=>{const s=getComputedStyle(n),group=n.closest('[data-adaptive-group]');return {shadow:s.textShadow,color:s.color,groupColor:getComputedStyle(group).color,font:parseFloat(s.fontSize),width:n.getBoundingClientRect().width,label:n.selectedOptions[0].textContent};});assert.equal(style.shadow,'none');assert.equal(style.color,style.groupColor);assert.ok(style.font>=14&&style.width>=120);assert.equal(style.label,'标准复核');
+  const fits=await page.evaluate(()=>{const field=document.querySelector('.project-review-level').getBoundingClientRect(),icons=document.querySelector('.workspace-icon-actions').getBoundingClientRect();return field.right<=icons.left;});assert.ok(fits,'review field and shortcuts have separate space');
+ }
+ await review.selectOption('high');await expect(review).toHaveValue('high');assert.equal(await review.locator('option:checked').textContent(),'深入复核');await review.selectOption('medium');
+ await review.click();assert.ok(await review.locator('option').evaluateAll(nodes=>nodes.every(n=>getComputedStyle(n).textShadow==='none')));await mkdir('tests/ui/results',{recursive:true});await page.screenshot({path:'tests/ui/results/review-picker-clear.png'});await page.keyboard.press('Escape');
+ await reports.evaluate(n=>n.scrollLeft=0);await mkdir('tests/ui/results',{recursive:true});await page.screenshot({path:'tests/ui/results/project-polish.png'});
+ await page.evaluate(()=>window.fixtureDesk(true));const topic=page.locator('.room-topic-bar'),select=page.getByRole('combobox',{name:'话题记录',exact:true});await expect(select).toBeVisible();await expect(topic).toHaveAttribute('data-adaptive-group','topic-controls');assert.equal(await page.locator('.topic-picker>span').count(),0);
+ const groupColours=await topic.locator('select,:scope>button').evaluateAll(nodes=>nodes.map(n=>({color:getComputedStyle(n).color,ownGroup:n.dataset.adaptiveGroup})));assert.equal(new Set(groupColours.map(n=>n.color)).size,1);assert.ok(groupColours.every(n=>!n.ownGroup));
+ const edges=await topic.locator(':scope>button').evaluateAll(nodes=>nodes.map(n=>{const s=getComputedStyle(n);return {width:s.borderTopWidth,style:s.borderTopStyle,color:s.borderTopColor,shadow:s.boxShadow};}));assert.equal(edges.length,2);assert.deepEqual(edges[0],edges[1]);assert.equal(edges[0].width,'1px');assert.equal(edges[0].style,'solid');
+ const attachment=page.locator('.attachment-chip.sent').first(),filename=attachment.locator('.attachment-meta strong'),reveal=attachment.getByRole('button',{name:/在文件夹中显示/});
+ for(const width of [1800,720,420]){
+  await page.setViewportSize({width,height:1100});await expect(attachment).toBeVisible();const boxes=await attachment.evaluate(n=>{const box=selector=>{const r=n.querySelector(selector).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};};const r=n.getBoundingClientRect();return {icon:box('.attachment-icon'),name:box('.attachment-meta strong'),size:box('.attachment-meta small'),action:box('button:not(.attachment-file-preview)'),left:r.left,right:r.right};});
+  assert.ok(boxes.icon.right+4<=boxes.name.left&&boxes.name.right+4<=boxes.action.left&&boxes.name.bottom<=boxes.size.top&&boxes.action.right<=boxes.right,JSON.stringify({width,...boxes}));assert.ok(await filename.evaluate(n=>n.scrollWidth>n.clientWidth&&getComputedStyle(n).textOverflow==='ellipsis'),'long filename truncates inside its own column');
+ }
+ await reveal.click();assert.ok(await page.evaluate(()=>window.testCalls.some(call=>call.method==='attachment.reveal'&&call.params.id==='long-file')));
+ await page.setViewportSize({width:1200,height:1000});await page.getByRole('button',{name:'打开文件预览',exact:true}).click();const grip=page.getByRole('separator',{name:'文件预览宽度',exact:true});await page.mouse.move(0,0);assert.equal(await grip.evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)');const old=await grip.getAttribute('aria-valuenow');await grip.focus();await page.keyboard.press('ArrowLeft');assert.equal(Number(await grip.getAttribute('aria-valuenow')),Number(old)+24);
+ await grip.evaluate(n=>n.blur());await page.screenshot({path:'tests/ui/results/preview-clean-corners.png'});assert.deepEqual(errors,[]);
+ console.log('PASS: project strip and redundant labels removed; matching step/presence/report cards and report scrollbar; controls share parent material; clear review selector; grouped topic ink and equal button rims; attachment columns at wide/narrow widths; invisible idle preview grip with keyboard resize preserved.');
+}catch(error){if(page){await mkdir('tests/ui/results',{recursive:true});await page.screenshot({path:'tests/ui/results/project-polish-failure.png'});}throw error;}finally{await browser.close();await server.close();}

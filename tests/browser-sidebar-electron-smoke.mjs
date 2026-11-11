@@ -1,0 +1,74 @@
+import assert from 'node:assert/strict';
+import {unfoldSettings} from './helpers/settings-menu.mjs';
+import path from 'node:path';
+import {mkdirSync,writeFileSync} from 'node:fs';
+import {createServer} from 'node:http';
+import {DatabaseSync} from 'node:sqlite';
+import {_electron,expect} from '@playwright/test';
+import {isolatedTestEnvironment,cleanupTestEnvironment} from '../scripts/test-environment.mjs';
+
+let retryRequests=0,failRetry=true;
+const server=createServer((request,response)=>{
+ if(request.url==='/retry'){retryRequests++;if(failRetry){response.destroy();return;}}
+ response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','X-Frame-Options':'DENY','Content-Security-Policy':"frame-ancestors 'none'"});
+ response.end(request.url==='/two'?'<title>侧栏第二页</title><h1>第二页</h1>':'<title>侧栏第一页</title><h1>真实网页内容</h1><a id="next" href="/two">下一页</a><a id="blocked" href="file:///C:/Windows/notepad.exe">不支持的协议</a>');
+});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const origin=`http://127.0.0.1:${server.address().port}`;
+const {directory,env}=isolatedTestEnvironment(process.env,process.cwd());delete env.ELECTRON_RUN_AS_NODE;
+const db=new DatabaseSync(path.join(env.HIVELAB_DATA_DIR,'hivelab.sqlite'));db.exec('CREATE TABLE entities(entity TEXT,id TEXT,value TEXT,PRIMARY KEY(entity,id))');
+const put=(entity,id,value)=>db.prepare('INSERT INTO entities VALUES(?,?,?)').run(entity,id,JSON.stringify(value));
+const browserExecutor='acp-browserfixture';
+put('executors',browserExecutor,{id:browserExecutor,name:'Offline browser fixture',command:process.execPath,args:[path.resolve('tests/fixtures/browser-agent-acp.mjs')],env:{HIVELAB_BROWSER_TEST_URL:origin+'/one'},permissions:{mode:'full',commands:'allow',fileScope:'workspace',network:true},createdAt:new Date().toISOString()});
+put('members','browser-member',{id:'browser-member',name:'浏览器测试成员',executor:browserExecutor,color:'#7b6fd6'});
+put('room_messages','web-message',{id:'web-message',author:'browser-member',text:`在程序中阅读 [网页测试](${origin}/one)。`,threadId:'room-main',at:new Date().toISOString(),status:'done'});db.close();
+const executablePath=process.env.HIVELAB_TEST_EXECUTABLE??process.env.HIVELAB_ELECTRON_EXE??path.resolve('node_modules/electron/dist/electron.exe');
+const args=process.env.HIVELAB_TEST_APP?[path.resolve(process.env.HIVELAB_TEST_APP)]:process.env.HIVELAB_TEST_EXECUTABLE||process.env.HIVELAB_SMOKE_APP_ROOT?[]:[path.resolve('.')];
+const app=await _electron.launch({executablePath,args,env,timeout:30000}),errors=[];
+const nativeState=()=>app.evaluate(({BrowserWindow},origin)=>{
+ const owner=BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().startsWith('file:'));
+ const view=owner?.contentView.children.find(v=>'webContents' in v&&v.webContents.getURL().startsWith(origin));
+ return view?{url:view.webContents.getURL(),title:view.webContents.getTitle(),visible:view.getVisible(),bounds:view.getBounds(),id:view.webContents.id}:null;
+},origin);
+try{
+ const page=await app.firstWindow();page.setDefaultTimeout(10000);page.on('pageerror',e=>errors.push(e.message));
+ await expect.poll(()=>page.evaluate(()=>window.hivelab.invoke('snapshot').then(s=>s.backendReady)),{timeout:30000}).toBe(true);
+ await page.getByRole('button',{name:'茶歇室',exact:true}).click();const link=page.getByRole('link',{name:'网页测试',exact:true});await expect(link).toBeVisible();const appUrl=page.url();
+ await link.click();const panel=page.getByRole('complementary',{name:'网页浏览器侧栏',exact:true});await expect(panel).toBeVisible();
+ await expect.poll(async()=>(await nativeState())?.title).toBe('侧栏第一页');
+ await expect.poll(async()=>(await nativeState())?.visible).toBe(true);
+ assert.equal(page.url(),appUrl);
+ const id=(await nativeState()).id;
+ const security=await app.evaluate(({webContents},id)=>{const c=webContents.fromId(id),p=c.getLastWebPreferences();return c.executeJavaScript('({bridge:typeof window.hivelab,heading:document.querySelector("h1").textContent})').then(result=>({...result,sandbox:p.sandbox,nodeIntegration:p.nodeIntegration,contextIsolation:p.contextIsolation}));},id);
+ assert.deepEqual(security,{bridge:'undefined',heading:'真实网页内容',sandbox:true,nodeIntegration:false,contextIsolation:true});
+ await app.evaluate(({webContents},id)=>webContents.fromId(id).executeJavaScript('document.querySelector("#blocked").click()'),id);assert.equal((await nativeState()).url,origin+'/one');
+ await app.evaluate(({webContents},id)=>webContents.fromId(id).executeJavaScript('document.querySelector("#next").click()',true),id);await expect.poll(async()=>(await nativeState())?.title).toBe('侧栏第二页');
+ await panel.getByRole('button',{name:'网页后退',exact:true}).click();await expect.poll(async()=>(await nativeState())?.title).toBe('侧栏第一页');
+ await panel.getByRole('button',{name:'网页前进',exact:true}).click();await expect.poll(async()=>(await nativeState())?.title).toBe('侧栏第二页');
+ const resizer=page.getByRole('separator',{name:'浏览器侧栏宽度',exact:true}),before=(await nativeState()).bounds.width;await resizer.focus();await page.keyboard.press('ArrowLeft');await expect.poll(async()=>(await nativeState())?.bounds.width).toBeGreaterThan(before);
+ await app.evaluate(({Menu,shell,dialog})=>{globalThis.webMenu=null;globalThis.webExternal=[];globalThis.webPicker=0;Menu.prototype.popup=function(){globalThis.webMenu=this;};shell.openExternal=async url=>{globalThis.webExternal.push(url);};dialog.showOpenDialog=async()=>{globalThis.webPicker++;return {canceled:true,filePaths:[]};};});
+ await link.click({button:'right'});await expect.poll(()=>app.evaluate(()=>globalThis.webMenu?.items.length??0)).toBeGreaterThan(5);
+ const labels=await app.evaluate(()=>globalThis.webMenu.items.map(i=>i.label));for(const label of ['在程序侧栏中打开','使用 Microsoft Edge 打开','使用 Google Chrome 打开','使用系统默认浏览器打开','选择其他浏览器…','复制链接'])assert.ok(labels.includes(label),label);
+ await app.evaluate(()=>globalThis.webMenu.items.find(i=>i.label==='使用系统默认浏览器打开').click());await expect.poll(()=>app.evaluate(()=>globalThis.webExternal.length)).toBe(1);assert.deepEqual(await app.evaluate(()=>globalThis.webExternal),[origin+'/one']);
+ await app.evaluate(()=>globalThis.webMenu.items.find(i=>i.label==='选择其他浏览器…').click());await expect.poll(()=>app.evaluate(()=>globalThis.webPicker)).toBe(1);assert.equal(await app.evaluate(()=>globalThis.webExternal.length),1);
+ for(const method of ['browser.open','link.open'])for(const url of ['file:///C:/Windows/notepad.exe','javascript:alert(1)','data:text/html,hello'])assert.match(await page.evaluate(({method,url})=>window.hivelab.invoke(method,{url}).then(()=>'',error=>error.message),{method,url}),/有效|只能打开/);
+ await page.getByLabel('搜索会话文字',{exact:true}).fill('网页测试');await page.getByRole('button',{name:'搜索会话',exact:true}).click();const results=page.getByRole('complementary',{name:'会话搜索侧栏',exact:true});await expect(results).toBeVisible();await expect.poll(async()=>(await nativeState())?.visible).toBe(false);await results.getByRole('button',{name:'关闭搜索侧栏',exact:true}).click();await expect.poll(async()=>(await nativeState())?.visible).toBe(true);
+ await page.getByRole('button',{name:'外观',exact:true}).click();await unfoldSettings(page);const settings=page.getByRole('dialog',{name:'设置与成员连接',exact:true});await expect(settings).toBeVisible();await expect.poll(async()=>(await nativeState())?.visible).toBe(false);
+ await settings.getByLabel('液态玻璃',{exact:true}).check();await settings.getByLabel('文件预览与浏览器透明度',{exact:true}).fill('72');
+ const surface=locator=>locator.evaluate(node=>{const s=getComputedStyle(node,'::before');return {background:s.backgroundColor,filter:s.backdropFilter.replace(/url\([^)]*\)\s*/g,''),radius:s.borderRadius,shadow:s.boxShadow};});
+ await expect(panel).toHaveAttribute('data-liquid-surface','');await expect.poll(()=>panel.evaluate(n=>getComputedStyle(n).getPropertyValue('--workspace-preview-opacity'))).toBe('28%');const browserGlass=await surface(panel);assert.ok(browserGlass.filter.includes('blur('));
+ await settings.getByRole('button',{name:'关闭对话框',exact:true}).click();await expect.poll(async()=>(await nativeState())?.visible).toBe(true);
+ await page.getByRole('button',{name:'打开文件预览',exact:true}).click();await expect(panel).toHaveCount(0);await expect.poll(async()=>(await nativeState())?.visible).toBe(false);assert.deepEqual(await surface(page.locator('.file-preview-panel')),browserGlass);await page.getByRole('button',{name:'收起预览侧栏',exact:true}).click();
+ await link.click();await expect(panel).toBeVisible();await expect.poll(async()=>(await nativeState())?.visible).toBe(true);
+ await page.evaluate(url=>window.hivelab.invoke('browser.open',{url}),origin+'/retry');await expect(panel.getByRole('alert')).toContainText('网页加载失败');await expect(panel.getByRole('textbox',{name:'网页地址',exact:true})).toHaveValue(origin+'/retry');
+ const failedRequests=retryRequests;failRetry=false;await page.evaluate(url=>window.hivelab.invoke('browser.open',{url}),origin+'/retry');await expect.poll(()=>retryRequests).toBeGreaterThan(failedRequests);await expect(panel.getByRole('alert')).toHaveCount(0);
+ await page.setViewportSize({width:620,height:740});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ const shots=path.resolve('tests/ui/results');mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,'browser-sidebar-shell.png')});
+ const png=await app.evaluate(({webContents},id)=>webContents.fromId(id).capturePage().then(image=>image.toPNG().toString('base64')),id);writeFileSync(path.join(shots,'browser-sidebar-page.png'),Buffer.from(png,'base64'));
+ await panel.getByRole('button',{name:'关闭网页侧栏',exact:true}).click();await expect(panel).toHaveCount(0);await expect.poll(async()=>(await nativeState())?.visible).toBe(false);
+ await page.evaluate(async provider=>{await window.hivelab.invoke('provider.probe',{provider});await window.hivelab.invoke('desk.open',{memberId:'browser-member'});await window.hivelab.invoke('desk.topic',{memberId:'browser-member'});await window.hivelab.invoke('room.send',{roomId:'desk:browser-member',text:'使用应用侧栏打开离线测试网页。'});},browserExecutor);
+ await expect(panel).toBeVisible();await expect.poll(async()=>(await nativeState())?.url,{timeout:25000}).toBe(origin+'/one');
+ await expect.poll(()=>page.evaluate(()=>window.hivelab.invoke('snapshot').then(s=>s.runs.some(run=>run.provider==='acp-browserfixture'&&run.status==='ended'))),{timeout:25000}).toBe(true);
+ await page.getByRole('button',{name:'删除提醒：浏览器测试成员 完成了',exact:true}).click();await expect.poll(async()=>(await nativeState())?.visible).toBe(true);
+ await panel.getByRole('button',{name:'关闭网页侧栏',exact:true}).click();
+ assert.deepEqual(errors,[]);console.log('PASS: real WebContentsView opens frame-denied pages; offline ACP agent discovers open_browser through the real MCP bridge and opens the native sidebar through the worker/main host service; back/forward, resizing, isolation, browser menus, overlay visibility, invalid protocols and narrow viewport. No real model requests or external browser launched.');
+}finally{await app.close();await new Promise(resolve=>server.close(resolve));cleanupTestEnvironment(directory,process.cwd());}

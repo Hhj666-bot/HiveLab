@@ -1,0 +1,68 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-questions",
+  "name": "交互确认",
+  "description": "让成员通过选择栏询问用户并等待回答。",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "ask_user",
+      "description": "向用户显示选择栏并等待提交。参数 questions:[{id,question,header?,options:[{label,description?}],multiSelect?}]。支持自定义回答；收到结果前不得执行依赖该决定的操作。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "questions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "question": {
+                  "type": "string"
+                },
+                "header": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "multiSelect": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "question"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "questions"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "features": []
+}

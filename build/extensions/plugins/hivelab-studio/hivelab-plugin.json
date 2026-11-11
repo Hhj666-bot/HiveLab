@@ -1,0 +1,30 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-studio",
+  "name": "工作室协作",
+  "description": "查询成员和状态，排队修改人物卡，创建话题，在应用侧栏打开网页。",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "open_browser",
+      "description": "在 HiveLab 应用内的侧边浏览器打开网页。参数 url 为完整的 http 或 https 地址。"
+    },
+    {
+      "name": "status",
+      "description": "查询工作室连接、实际运行状态和设置队列"
+    },
+    {
+      "name": "members",
+      "description": "查询成员身份和人物设定"
+    },
+    {
+      "name": "update_persona",
+      "description": "排队修改人物卡。参数 memberId 和 patch；只接受 name/persona/motto/relations/talkativeness"
+    },
+    {
+      "name": "create_topic",
+      "description": "给空闲成员新建工位话题，不发送消息、不调用模型。参数 memberId/title"
+    }
+  ],
+  "features": []
+}

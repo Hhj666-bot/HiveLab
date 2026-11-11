@@ -1,0 +1,87 @@
+/* Context ring (composer) and context panel. The ring fills and recolours over --motion-base; the panel pops like
+   the model popover and its bar segments grow with the shared motion tokens. */
+:root .room .composer-bottom>.composer-context{flex:none;gap:6px;font-variant-numeric:tabular-nums;transition:color var(--motion-fast) var(--ease-out),border-color var(--motion-fast) var(--ease-out),background-color var(--motion-fast) var(--ease-out)}
+.composer-context{--context-tone:var(--focus,var(--brand))}
+.composer-context[data-level=warn]{--context-tone:var(--status-warn,var(--warn,#d97706))}
+.composer-context[data-level=danger]{--context-tone:var(--status-error,var(--bad,#dc2626))}
+.context-ring{flex:none;transform:rotate(-90deg)}
+.context-ring circle{fill:none;stroke-width:2.4}
+.context-ring-track{stroke:color-mix(in srgb,currentColor 22%,transparent)}
+.context-ring-fill{stroke:var(--context-tone);stroke-linecap:round;transition:stroke-dashoffset var(--motion-base) var(--ease-out),stroke var(--motion-fast) var(--ease-out)}
+.composer-context[data-level=none] .context-ring-fill{stroke:transparent}
+.composer-context[data-level=warn] .context-label,.composer-context[data-level=danger] .context-label{color:var(--context-tone)}
+
+.context-popover{width:372px;max-width:calc(100vw - 16px);overflow:auto;overscroll-behavior:contain;gap:8px;padding:14px 16px 12px;outline:none;
+  --tone-messages:#3b82f6;--tone-native:#f97316;--tone-mcp:#14b8a6;--tone-persona:#a78bfa;--tone-notes:#94a3b8;--tone-skills:#eab308;--tone-memory:#f472b6;--tone-since:#cbd5e1;--tone-buffer:#64748b;--tone-free:color-mix(in srgb,currentColor 14%,transparent)}
+.context-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.context-head>strong{font-size:var(--fs-md);font-weight:var(--fw-semibold)}
+.context-head>small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-3);font-size:var(--fs-xs)}
+.context-total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.context-total>span:first-child{font-size:var(--fs-base);font-weight:var(--fw-semibold)}
+.context-total>span:last-child{color:var(--ink-2);font-size:var(--fs-sm)}
+.context-sub{margin-top:-4px;color:var(--ink-3);font-size:var(--fs-xs)}
+.context-bar{display:flex;gap:2px;height:6px;border-radius:var(--r-pill);overflow:hidden;background:var(--tone-free)}
+.context-bar>span{min-width:2px;transition:flex-grow var(--motion-base) var(--ease-out);animation:context-grow var(--motion-base) var(--ease-out) both}
+.context-rows{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:3px}
+.context-rows>li{display:grid;grid-template-columns:12px minmax(0,1fr) auto 52px;align-items:center;gap:8px;font-size:var(--fs-sm);font-variant-numeric:tabular-nums}
+.context-rows>li>i{width:10px;height:10px;border-radius:2px}
+.context-rows>li>span:nth-of-type(1){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+.context-rows>li>span:nth-of-type(2){color:var(--ink-3);text-align:right}
+.context-rows>li>b{text-align:right;font-weight:var(--fw-semibold)}
+.context-rows>li.empty{opacity:.55}
+.context-hinted{text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+:is(.context-bar,.context-rows) .tone-messages{background:var(--tone-messages)}
+:is(.context-bar,.context-rows) .tone-native{background:var(--tone-native)}
+:is(.context-bar,.context-rows) .tone-mcp{background:var(--tone-mcp)}
+:is(.context-bar,.context-rows) .tone-persona{background:var(--tone-persona)}
+:is(.context-bar,.context-rows) .tone-notes{background:var(--tone-notes)}
+:is(.context-bar,.context-rows) .tone-skills{background:var(--tone-skills)}
+:is(.context-bar,.context-rows) .tone-memory{background:var(--tone-memory)}
+:is(.context-bar,.context-rows) .tone-since{background:var(--tone-since)}
+:is(.context-bar,.context-rows) .tone-buffer{background:var(--tone-buffer)}
+.context-bar .tone-free{background:transparent}
+.context-rows .tone-free{background:transparent;box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
+.context-list>summary{display:flex;align-items:center;gap:6px;padding:3px 0;list-style:none;cursor:pointer;color:var(--ink-2);font-size:var(--fs-sm)}
+.context-list>summary::-webkit-details-marker{display:none}
+.context-list>summary>svg{transition:transform var(--motion-fast) var(--ease-out)}
+.context-list[open]>summary>svg{transform:rotate(90deg)}
+.context-list>summary>span{margin-left:auto;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.context-list>summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-sm)}
+.context-list ul{list-style:none;margin:2px 0 4px 19px;padding:0;display:flex;flex-direction:column;gap:2px;max-height:160px;overflow:auto;font-size:var(--fs-xs);color:var(--ink-2)}
+.context-list li{display:flex;justify-content:space-between;gap:8px;overflow-wrap:anywhere}
+.context-list li>span{color:var(--ink-3)}
+.context-empty{margin:2px 0;color:var(--ink-3);font-size:var(--fs-xs);line-height:1.6}
+.context-compact{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:8px;border-top:1px solid var(--line);font-size:var(--fs-sm);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.context-compact .button{display:inline-flex;align-items:center;gap:5px;flex:none}
+.context-compact-form{display:flex;flex-direction:column;gap:6px;animation:context-in var(--motion-fast) var(--ease-out) both}
+.context-compact-form>small{color:var(--ink-3);font-size:var(--fs-xs)}
+.context-compact-form>div{display:flex;gap:8px}
+:is(.context-compact-form,.context-limit-row) input{flex:1;min-width:0;height:30px;padding:0 9px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);font:inherit;font-size:var(--fs-sm);transition:border-color var(--motion-instant) var(--ease-out)}
+:is(.context-compact-form,.context-limit-row) input:focus-visible{outline:none;border-color:var(--focus)}
+.context-settings{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid var(--line)}
+.context-settings>h4{margin:2px 0 0;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--ink-2)}
+.context-note{margin:0;color:var(--ink-3);font-size:var(--fs-xs);line-height:1.6}
+.context-limit-row{display:flex;gap:8px}
+.context-limit-row .button{display:inline-flex;align-items:center;gap:5px;flex:none}
+.context-chips{display:flex;flex-wrap:wrap;gap:5px}
+.context-chips>button{padding:3px 9px;border:1px solid var(--line);border-radius:var(--r-pill);background:transparent;color:var(--ink-2);font:inherit;font-size:var(--fs-xs);font-variant-numeric:tabular-nums;cursor:pointer;transition:background-color var(--motion-fast) var(--ease-out),border-color var(--motion-fast) var(--ease-out),color var(--motion-fast) var(--ease-out)}
+.context-chips>button:hover{border-color:color-mix(in srgb,var(--focus) 50%,var(--line))}
+.context-chips>button.selected{border-color:var(--focus);background:color-mix(in srgb,var(--focus) 16%,transparent);color:var(--ink)}
+.context-chips>button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.context-error{margin:0;color:var(--status-error,var(--bad));font-size:var(--fs-xs)}
+.context-saved{margin:0;color:var(--status-ok,var(--ok));font-size:var(--fs-xs)}
+.context-footnote{color:var(--ink-3);font-size:var(--fs-xs);line-height:1.5}
+.context-spin{animation:context-spin 1.1s linear infinite}
+@keyframes context-spin{to{transform:rotate(360deg)}}
+.context-popover[data-leaving]{animation:context-out var(--motion-fast) var(--ease-out) both;pointer-events:none}
+@keyframes context-out{to{opacity:0;transform:translateY(calc(var(--motion-shift-sm) * var(--motion-distance)))}}
+@keyframes context-grow{from{opacity:0}}
+@keyframes context-in{from{opacity:0;transform:translateY(calc(var(--motion-shift-sm) * var(--motion-distance)))}}
+
+/* Liquid glass: the panel already takes the popover glass (.model-popover); inner fields and chips go translucent. */
+:root[data-liquid-glass=true] .context-popover :is(.context-compact,.context-settings){border-top-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .context-popover :is(.context-compact-form,.context-limit-row) input{background:color-mix(in srgb,var(--surface) 45%,transparent);border-color:var(--glass-rim);color:inherit}
+:root[data-liquid-glass=true] .context-popover .context-chips>button{border-color:var(--glass-rim);color:inherit}
+:root[data-liquid-glass=true] .context-popover .context-chips>button.selected{border-color:var(--focus);background:color-mix(in srgb,var(--focus) 24%,transparent)}
+:root[data-liquid-glass=true] .context-popover :is(.context-rows>li>span,.context-head>small,.context-sub,.context-note,.context-footnote,.context-empty,.context-list>summary,.context-list ul,.context-compact){color:color-mix(in srgb,currentColor 78%,transparent)}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){:root .context-popover :is(.context-compact-form,.context-limit-row) input{background:var(--surface)!important}}

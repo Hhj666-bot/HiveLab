@@ -1,0 +1,139 @@
+/* Opt-in only. Removing the root attribute restores the existing theme and all
+   per-page/per-chat opacity settings without changing their stored values. */
+.liquid-glass-definitions{position:fixed;pointer-events:none;overflow:hidden}
+:root[data-liquid-glass=true]{--glass-rim:color-mix(in srgb,var(--ink) 16%,transparent);--glass-highlight:rgb(255 255 255 / 24%);--glass-shadow:0 12px 36px -18px rgb(0 0 0 / 30%),inset 0 1px 0 var(--glass-highlight),inset 0 -1px 0 rgb(255 255 255 / 5%)}
+:root[data-liquid-glass=true] :is(.modal,.context-menu,.model-popover,.select-popover,.file-preview-panel,.workspace-terminal){background:linear-gradient(145deg,rgb(255 255 255 / 10%),transparent 42%),color-mix(in srgb,var(--surface) 76%,transparent);border-color:var(--glass-rim);box-shadow:var(--glass-shadow);backdrop-filter:blur(18px) saturate(1.18)}
+:root[data-liquid-glass=true] [data-liquid-surface]{backdrop-filter:var(--liquid-refraction,blur(18px)) saturate(1.18)}
+:root[data-liquid-glass=true] .room-messages-empty .room-empty{background:color-mix(in srgb,var(--surface) var(--welcome-card-opacity,45%),transparent);backdrop-filter:blur(18px) var(--liquid-refraction,blur(0px)) saturate(1.12);border-color:var(--glass-rim);box-shadow:var(--glass-shadow)}
+:root[data-liquid-glass=true] .app-shell>.sidebar{border-right-color:var(--glass-rim);box-shadow:inset -1px 0 0 rgb(255 255 255 / 10%)}
+:root[data-liquid-glass=true] .workspace-header-surface{border-color:var(--glass-rim);box-shadow:var(--glass-shadow);background-image:linear-gradient(145deg,rgb(255 255 255 / 10%),transparent 50%)}
+:root[data-liquid-glass=true] :is(.composer,.room-bubble,.answer-export,.run-activity,.room-empty,.generated-file-card){border-color:var(--glass-rim);box-shadow:inset 0 1px 0 var(--glass-highlight),0 5px 18px -12px rgb(0 0 0 / 35%);background-image:linear-gradient(145deg,rgb(255 255 255 / 8%),transparent 55%)}
+:root[data-liquid-glass=true] :is(.button.secondary,.button.quiet,.composer-model,.sidebar-edge-toggle,.desk-folder-option,.settings-group,.preview-panel-header,.preview-tabs,.desk-file-tree,.segmented,.explorer-root){background:linear-gradient(145deg,rgb(255 255 255 / 10%),transparent 60%),color-mix(in srgb,var(--surface) 30%,transparent);border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 14%)}
+:root[data-liquid-glass=true] :is(.button.quiet,.button.secondary):hover:not(:disabled){background:linear-gradient(145deg,rgb(255 255 255 / 14%),transparent),color-mix(in srgb,var(--ink) 7%,transparent);border-color:color-mix(in srgb,var(--ink) 12%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 16%),0 3px 14px -10px rgb(0 0 0 / 20%)}
+:root[data-liquid-glass=true] .button.primary{background:linear-gradient(145deg,rgb(255 255 255 / 16%),transparent),color-mix(in srgb,var(--brand) 92%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 28%),0 5px 16px -9px rgb(0 0 0 / 30%)}
+:root[data-liquid-glass=true] .modal-overlay{background:rgb(15 18 22 / 24%);backdrop-filter:blur(5px)}
+:root[data-liquid-glass=true] .preview-workspace-bar .home-action{backdrop-filter:none}
+@media(prefers-reduced-transparency:reduce){:root[data-liquid-glass=true] :is(.modal,.context-menu,.model-popover,.select-popover,.file-preview-panel,.workspace-terminal){background:var(--surface)}}
+
+/* Quiet controls and navigation use light passing through glass, including
+   their hover/selected states, rather than an opaque theme-coloured tile. */
+:root[data-liquid-glass=true] :is(.preview-workspace-bar,.room-actions) .button{background:linear-gradient(145deg,rgb(255 255 255 / 7%),transparent),color-mix(in srgb,var(--surface) 10%,transparent);border-color:color-mix(in srgb,var(--ink) 6%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 8%)}
+:root[data-liquid-glass=true] :is(.preview-workspace-bar,.room-actions) .button:hover:not(:disabled){background:linear-gradient(145deg,rgb(255 255 255 / 13%),transparent),color-mix(in srgb,var(--ink) 6%,transparent);border-color:color-mix(in srgb,var(--ink) 12%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 16%)}
+:root[data-liquid-glass=true] :is(.roster-with-desk.selected,.room-entry.selected,.attention-entry[aria-expanded=true],.project-list .list-row.selected,.report-row.selected){background:linear-gradient(135deg,rgb(255 255 255 / 12%),transparent 75%),color-mix(in srgb,var(--m,var(--focus)) 13%,transparent);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 12%),inset 0 1px 0 rgb(255 255 255 / 16%),0 3px 12px -10px rgb(0 0 0 / 25%)}
+:root[data-liquid-glass=true] :is(.roster-with-desk:hover,.roster-with-desk:has(.roster-row.open),.room-entry:hover,.project-list .list-row:hover){background:linear-gradient(135deg,rgb(255 255 255 / 10%),transparent),color-mix(in srgb,var(--m,var(--focus)) 9%,transparent)}
+:root[data-liquid-glass=true] .room-topic-bar .topic-picker select{background:linear-gradient(135deg,rgb(255 255 255 / 10%),transparent 70%),color-mix(in srgb,var(--surface) 16%,transparent);border-color:color-mix(in srgb,var(--ink) 10%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 12%);color:var(--ink)}
+:root[data-liquid-glass=true] select::picker(select){background:linear-gradient(135deg,rgb(255 255 255 / 12%),transparent),color-mix(in srgb,var(--surface) 65%,transparent);backdrop-filter:blur(20px) saturate(1.18);border-color:var(--glass-rim)}
+:root[data-liquid-glass=true] .explorer-root select{background:transparent;box-shadow:none;color:inherit}
+:root[data-liquid-glass=true] select :is(option,optgroup){background:transparent;color:inherit}
+:root[data-liquid-glass=true] select option:is(:hover,:focus,:checked){background:color-mix(in srgb,var(--ink) 12%,transparent);color:inherit}
+:root[data-liquid-glass=true] :is(.generated-file-card,.attachment-chip){background:linear-gradient(135deg,rgb(255 255 255 / 12%),transparent 65%),color-mix(in srgb,var(--surface) 18%,transparent);border-color:color-mix(in srgb,var(--ink) 12%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 18%),0 6px 20px -15px rgb(0 0 0 / 30%);color:var(--ink)}
+:root[data-liquid-glass=true] .generated-file-card .generated-file{background:transparent}
+:root[data-liquid-glass=true] .generated-file-download{border-left-color:color-mix(in srgb,var(--ink) 10%,transparent)}
+:root[data-liquid-glass=true] :is(.generated-file,.generated-file-download,.attachment-chip button):hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+
+/* Wallpaper, a single full-height scrolling log, then the glass controls. */
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat])>.workspace-header-surface{display:none}
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat])>.preview-workspace-bar{position:relative;z-index:40;background:transparent;backdrop-filter:none;border-bottom:0}
+:root[data-liquid-glass=true] :is(.workspace-toolbar-glass,.conversation-search-panel){background:color-mix(in srgb,var(--bg) var(--workspace-header-opacity,74%),transparent);backdrop-filter:blur(18px) var(--liquid-refraction,blur(0px)) saturate(1.12);border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 8%),0 6px 22px -20px rgb(0 0 0 / 28%)}
+:root[data-liquid-glass=true] .file-preview-workspace:has([data-glass-chat]) .file-preview-panel{padding-top:0}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-top{position:absolute;top:var(--glass-top-offset,0px);left:0;right:0;z-index:6;background:transparent;border:0;box-shadow:none;backdrop-filter:none;isolation:isolate;overflow:visible}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-top::before{content:"";position:absolute;inset:calc(-1 * var(--glass-top-offset,0px)) 0 0;z-index:-1;pointer-events:none;background:linear-gradient(135deg,rgb(255 255 255 / 7%),transparent 65%),color-mix(in srgb,var(--bg) var(--workspace-header-opacity,50%),transparent);backdrop-filter:blur(5px) var(--liquid-refraction,blur(13px)) saturate(1.18);border-bottom:1px solid color-mix(in srgb,var(--ink) 7%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 8%),0 6px 24px -22px rgb(0 0 0 / 20%)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-messages{position:relative;z-index:0;flex:1;padding-top:calc(var(--glass-header-space,0px) + 18px);padding-bottom:calc(var(--glass-composer-space,0px) + 24px);scroll-padding-top:calc(var(--glass-header-space,0px) + 12px);scroll-padding-bottom:calc(var(--glass-composer-space,0px) + 12px)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-composer{position:absolute;inset:auto 0 0;z-index:7;pointer-events:none;background:transparent}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-composer>*{pointer-events:auto}
+:root[data-liquid-glass=true] .page-background .room .composer.room-input{background:linear-gradient(135deg,rgb(255 255 255 / 8%),transparent 65%),color-mix(in srgb,var(--chat-input-color,var(--surface)) var(--chat-input-opacity,100%),transparent);border-color:color-mix(in srgb,var(--ink) 12%,transparent);backdrop-filter:blur(10px) var(--liquid-refraction,blur(8px)) saturate(1.12);box-shadow:inset 0 1px 0 rgb(255 255 255 / 16%),0 8px 28px -20px rgb(0 0 0 / 25%)}
+:root[data-liquid-glass=true] .room[data-glass-chat]>.room-jump{position:absolute;bottom:calc(var(--glass-composer-space,0px) + 10px);left:50%;transform:translateX(-50%);z-index:8;margin:0;white-space:nowrap;background:color-mix(in srgb,var(--surface) 55%,transparent);backdrop-filter:blur(14px)}
+
+/* All workspace panes look through the same wallpaper. Keep a single hairline
+   at the split; its wider transparent hit area is owned by the resizer. */
+:root[data-liquid-glass=true] .file-preview-panel{background:linear-gradient(145deg,rgb(255 255 255 / 8%),transparent 55%),color-mix(in srgb,var(--surface) var(--workspace-preview-opacity,45%),transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 10%);backdrop-filter:blur(18px) var(--liquid-refraction,blur(0px)) saturate(1.15)}
+:root[data-liquid-glass=true] .workspace-terminal{background:linear-gradient(145deg,rgb(255 255 255 / 6%),transparent 55%),color-mix(in srgb,#181916 var(--workspace-terminal-opacity,65%),transparent);color:#eee9df;border-top-color:rgb(255 255 255 / 14%);box-shadow:inset 0 1px 0 rgb(255 255 255 / 5%);backdrop-filter:blur(24px) var(--liquid-refraction,blur(0px)) saturate(1.08)}
+:root[data-liquid-glass=true] .workspace-terminal :is(.terminal-header,.terminal-directory){background:rgb(255 255 255 / 3%);border-color:rgb(255 255 255 / 10%)}
+:root[data-liquid-glass=true] .workspace-terminal :is(.terminal-screen,.xterm-viewport){background:transparent!important}
+:root[data-liquid-glass=true] .file-preview-panel :is(.preview-panel-header,.preview-tabs,.file-preview-toolbar,.workspace-document-tools,.workspace-file-status){background:linear-gradient(135deg,rgb(255 255 255 / 5%),transparent);border-color:color-mix(in srgb,var(--ink) 9%,transparent);box-shadow:none}
+:root[data-liquid-glass=true] .file-preview-panel .preview-tab.selected{background:color-mix(in srgb,var(--surface) 25%,transparent)}
+:root[data-liquid-glass=true] .file-preview-panel :is(.preview-content-code,.workspace-code-editor){background:rgb(23 27 36 / 78%)}
+:root[data-liquid-glass=true] .file-preview-panel .preview-content-code>.syntax-code{background:transparent}
+
+/* Settings use one deeply frosted substrate. Consistent translucent cards and
+   controls prevent opaque brown tiles from breaking up the glass surface. */
+:root[data-liquid-glass=true] .modal.settings-modal{overflow:hidden;background:linear-gradient(165deg,rgb(255 255 255 / 9%),transparent 40%,color-mix(in srgb,var(--surface) 20%,transparent)),color-mix(in srgb,var(--surface) 82%,transparent);backdrop-filter:blur(42px) var(--liquid-refraction,blur(0px)) saturate(1.08);border-color:color-mix(in srgb,var(--ink) 18%,transparent);box-shadow:0 24px 80px -18px rgb(0 0 0 / 48%),inset 0 1px 0 rgb(255 255 255 / 24%),inset 0 -1px 0 rgb(255 255 255 / 8%)}
+:root[data-liquid-glass=true] .settings-modal .settings-layout{border-color:color-mix(in srgb,var(--ink) 9%,transparent)}
+:root[data-liquid-glass=true] .settings-modal :is(.settings-nav,.modal-footer){background:color-mix(in srgb,var(--surface) 16%,transparent);border-color:color-mix(in srgb,var(--ink) 9%,transparent)}
+:root[data-liquid-glass=true] .settings-modal .settings-content{background:transparent;color:var(--ink)}
+:root[data-liquid-glass=true] .settings-modal :is(.settings-group,.provider-settings,.catalog-settings,.catalog-first-use){background:linear-gradient(145deg,rgb(255 255 255 / 5%),transparent 65%),color-mix(in srgb,var(--surface) 22%,transparent);border-color:color-mix(in srgb,var(--ink) 12%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 10%),0 4px 14px -12px rgb(0 0 0 / 22%)}
+:root[data-liquid-glass=true] .settings-modal :is(.toggle-row,.settings-nav-note,.running-version,.catalog-login,.compatibility-details){background:color-mix(in srgb,var(--surface) 12%,transparent);border-color:color-mix(in srgb,var(--ink) 10%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 5%)}
+:root[data-liquid-glass=true] .settings-modal :is(.field input:not([type=range]):not([type=checkbox]):not([type=color]),.field textarea,.field select,.themed-select-trigger){background:linear-gradient(150deg,rgb(255 255 255 / 4%),transparent 60%),color-mix(in srgb,var(--surface) 28%,transparent);border-color:color-mix(in srgb,var(--ink) 14%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%)}
+:root[data-liquid-glass=true] .settings-modal .settings-nav>button.selected{background:linear-gradient(135deg,rgb(255 255 255 / 10%),transparent),color-mix(in srgb,var(--ink) 6%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 10%,transparent),inset 0 1px 0 rgb(255 255 255 / 12%)}
+@media(prefers-reduced-transparency:reduce){:root[data-liquid-glass=true] .file-preview-panel,:root[data-liquid-glass=true] .modal.settings-modal{background:var(--surface)}:root[data-liquid-glass=true] .workspace-terminal{background:#181916}}
+
+:root[data-liquid-glass=true] .preview-workspace-bar .preview-toggle.has-files{border-color:var(--focus);outline:1px solid var(--focus);outline-offset:-1px}
+:root[data-liquid-glass=true] .page-background:not([data-chat-reply-custom=true]) :is(.room-line:not(.mine) :is(.room-bubble,.answer-export),.run-activity){background-color:color-mix(in srgb,color-mix(in srgb,var(--m,var(--surface)) 40%,var(--bg-deep)) max(78%,var(--chat-reply-opacity,100%)),transparent);border-color:color-mix(in srgb,var(--m,var(--ink)) 24%,transparent)}
+:root[data-liquid-glass=true] .page-background[data-chat-reply-custom=true] .room-line:not(.mine) .answer-export{border-color:var(--m-line)}
+
+/* Shared detail tint lives in chat-appearance.css; glass adds only its rim. */
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-code{border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%);backdrop-filter:none}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-code .syntax-code,:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-code pre{background:transparent;color:inherit}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-keyword,.hljs-selector-tag,.hljs-literal){color:color-mix(in srgb,currentColor 60%,#9c57c9)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-string,.hljs-regexp,.hljs-addition){color:color-mix(in srgb,currentColor 60%,#4b9f6b)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-number,.hljs-symbol,.hljs-attr){color:color-mix(in srgb,currentColor 60%,#bf7e35)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-title,.hljs-section,.hljs-type,.hljs-built_in,.hljs-class){color:color-mix(in srgb,currentColor 60%,#478fc1)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-meta,.hljs-tag,.hljs-name,.hljs-variable,.hljs-template-variable,.hljs-deletion){color:color-mix(in srgb,currentColor 60%,#c96e86)}
+.page-background :is(.room-bubble,.run-activity) .syntax-code :is(.hljs-comment,.hljs-quote){color:color-mix(in srgb,currentColor 70%,transparent)}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity,.answer-export) .md-code-bar{background:transparent;border-bottom:1px solid rgb(255 255 255 / 8%)}
+:root[data-liquid-glass=true] .answer-export>.md-code-bar{border-bottom:0}
+:root[data-liquid-glass=true] .answer-export :is(summary,.md-code-bar>button,.room-tools>button,.reaction-add,.reaction-chip){color:inherit;background:transparent}
+:root[data-liquid-glass=true] .answer-export :is(summary,button):hover,:root[data-liquid-glass=true] .answer-export details[open]>summary{background:color-mix(in srgb,currentColor 10%,transparent);color:inherit}
+:root[data-liquid-glass=true] .answer-export .reaction-chip{border-color:color-mix(in srgb,currentColor 20%,transparent)}
+:root[data-liquid-glass=true] .answer-export .reaction-chip.mine{background:color-mix(in srgb,currentColor 12%,transparent);border-color:color-mix(in srgb,currentColor 35%,transparent)}
+:root[data-liquid-glass=true] .answer-export :is(.answer-export-menu,.reaction-picker){background:linear-gradient(145deg,rgb(255 255 255 / 8%),transparent 55%),color-mix(in srgb,var(--chat-reply-color,var(--m,var(--surface))) max(55%,var(--chat-reply-opacity,100%)),transparent);border-color:var(--glass-rim);backdrop-filter:blur(18px) saturate(1.12);color:inherit}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-table{border-color:var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%);backdrop-filter:none}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) .md-table th{background:transparent}
+:root[data-liquid-glass=true] :is(.room-bubble,.run-activity) :is(.md-code,.md-table) :is(*){text-shadow:none}
+:root[data-liquid-glass=true] .room-bubble .markdown :not(pre)>code{backdrop-filter:blur(6px) saturate(1.08)}
+:root[data-liquid-glass=true] .page-background :is(.room-bubble,.run-activity){--chat-reply-surface-opacity:max(78%,var(--chat-reply-opacity,100%))}
+/* Activity interiors add a light rim to the shared translucent detail tint. */
+:root[data-liquid-glass=true] .run-activity :is(.runtime-diagnostics,.activity-tool,.activity-text,.activity-code){background-image:linear-gradient(135deg,rgb(255 255 255 / 4%),transparent 65%);border:1px solid var(--glass-rim);box-shadow:inset 0 1px 0 rgb(255 255 255 / 7%)}
+:root[data-liquid-glass=true] .run-activity :is(.activity-code pre,.activity-text pre,.activity-code>small,.runtime-diagnostics>summary,.runtime-diagnostics>summary span){background:transparent;color:inherit}
+:root[data-liquid-glass=true] .run-activity .activity-toolbar button.selected{background:color-mix(in srgb,currentColor 10%,transparent);color:inherit;box-shadow:inset 0 1px 0 rgb(255 255 255 / 10%)}
+/* 胶囊自带底色后，内部文字不再参与自适应调色与光晕 */
+:root[data-liquid-glass=true][data-adaptive-text=true] :is(.room-bubble,.run-activity) .markdown :not(pre)>code,
+:root[data-liquid-glass=true][data-adaptive-text=true] :is(.room-bubble,.run-activity) .markdown :not(pre)>code *{color:var(--chat-reply-ink,var(--ink))!important;text-shadow:none!important}
+/* 仅在液态玻璃模式下，聊天正文去掉自适应文本的常驻文字光晕（2px 半透明阴影，肉眼就是发虚）；其他模式保持原样，只保留明暗选色 */
+:root[data-liquid-glass=true][data-adaptive-text=true] :is(.room-bubble,.run-activity),
+:root[data-liquid-glass=true][data-adaptive-text=true] :is(.room-bubble,.run-activity) :is(*) {text-shadow:none!important}
+
+/* Topic management shares the deeply frosted material used by settings. */
+:root[data-liquid-glass=true] .topic-panel{background:linear-gradient(155deg,rgb(255 255 255 / 9%),transparent 55%),color-mix(in srgb,var(--surface) 80%,transparent);backdrop-filter:blur(36px) var(--liquid-refraction,blur(0px)) saturate(1.08);border-color:var(--glass-rim);box-shadow:0 18px 50px rgb(0 0 0 / 25%),inset 0 1px 0 rgb(255 255 255 / 20%);color:var(--ink)}
+:root[data-liquid-glass=true] .topic-panel .topic-item{background:linear-gradient(145deg,rgb(255 255 255 / 5%),transparent 70%),color-mix(in srgb,var(--surface) 20%,transparent);border-color:color-mix(in srgb,var(--ink) 12%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 9%)}
+:root[data-liquid-glass=true] .topic-panel .topic-item.selected{border-color:var(--focus);box-shadow:0 0 0 1px color-mix(in srgb,var(--focus) 45%,transparent),inset 0 1px 0 rgb(255 255 255 / 12%)}
+:root[data-liquid-glass=true] .topic-panel :is(.topic-panel-tools,.topic-panel-note){border-color:color-mix(in srgb,var(--ink) 10%,transparent)}
+:root[data-liquid-glass=true] .topic-panel :is(.summarizer select,.topic-rename,.topic-badge:not(.current)){background:color-mix(in srgb,var(--surface) 22%,transparent);border-color:var(--glass-rim)}
+@media(prefers-reduced-transparency:reduce){:root[data-liquid-glass=true] .topic-panel{background:var(--surface)}}
+
+/* A frosted backing keeps detailed wallpaper from cutting through glyphs.
+   The stored slider value is preserved; glass text surfaces composite at 55%+. */
+:root[data-liquid-glass=true] .page-background .room-line:not(.mine) :is(.room-bubble,.answer-export),
+:root[data-liquid-glass=true] .page-background .run-activity{background-color:color-mix(in srgb,color-mix(in srgb,var(--chat-reply-color,var(--m,var(--surface))) 40%,var(--bg-deep)) max(78%,var(--chat-reply-opacity,100%)),transparent);backdrop-filter:blur(18px) var(--liquid-refraction,blur(0px)) saturate(1.12)}
+:root[data-liquid-glass=true] .page-background .room-line.mine .room-bubble{background-color:color-mix(in srgb,var(--chat-mine-color,var(--brand)) max(55%,var(--chat-mine-opacity,100%)),transparent);backdrop-filter:blur(18px) saturate(1.12)}
+:root[data-liquid-glass=true] .page-background .room .composer.room-input{background-color:color-mix(in srgb,var(--chat-input-color,var(--surface)) max(55%,var(--chat-input-opacity,100%)),transparent)}
+
+/* System accessibility preferences apply to every glass family, including
+   opt-out glass mode, floating controls and backgrounds behind the sidebar. */
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  :root .conversation-search-panel{background:var(--surface)!important;backdrop-filter:none!important;color:var(--ink)!important}
+  :root :is([data-liquid-surface],.sidebar,.workspace-header-surface,.workspace-toolbar-glass,.preview-workspace-bar,.room-top,.composer,.room-bubble,.answer-export,.run-activity,.room-empty,.room-jump,.modal,.context-menu,.model-popover,.select-popover,.file-preview-panel,.workspace-terminal,.topic-panel,.home-action,.standee-nameplate,.home-projects,.button.secondary,.button.quiet,.icon-button,.composer-model,.sidebar-edge-toggle,.desk-folder-option,.settings-group,.preview-panel-header,.preview-tabs,.desk-file-tree,.segmented,.explorer-root,.generated-file-card,.attachment-chip,.topic-picker select,.md-code,.md-table,.roster-with-desk.selected){background:var(--surface)!important;backdrop-filter:none!important;--liquid-refraction:none; color:var(--ink)!important;}
+  :root .room-top::before{background:var(--surface)!important;backdrop-filter:none!important;box-shadow:none!important}
+  :root select::picker(select){background:var(--surface)!important;color:var(--ink)!important;backdrop-filter:none!important}
+  :root :is(.home-background,.room-backdrop){visibility:hidden}
+  :root .standee-home{background:var(--surface);color:var(--ink)}
+  :root :is(.workspace-terminal,.workspace-terminal .terminal-header,.workspace-terminal .terminal-directory,.md-code){background:#181916!important;color:#eee9df!important}
+  :root .answer-export :is(.answer-export-menu,.reaction-picker){background:var(--surface)!important;color:var(--ink)!important;backdrop-filter:none!important}
+  :root .room[data-glass-chat]>.room-top{background:var(--surface)!important}
+  :root .modal-overlay{backdrop-filter:none!important;background:rgb(0 0 0 / 70%)}
+}
+@media(prefers-contrast:more){
+  :root{--ink-2:var(--ink);--ink-3:var(--ink)}
+  :root :is(.room-bubble,.composer,.sidebar,.modal,.context-menu,.model-popover,.home-action,.button,.room-top,.file-preview-panel){border-color:var(--ink)!important;box-shadow:none!important}
+  :root :is(.room,.sidebar,.standee-home,.modal,.context-menu){text-shadow:none!important}
+}

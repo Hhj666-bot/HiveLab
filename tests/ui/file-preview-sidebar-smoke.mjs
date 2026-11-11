@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {chromium,expect} from '@playwright/test';
+import {createServer} from '../../scripts/ui-test-server.mjs';
+import {previewDocument} from '../fixtures/preview-document.ts';
+
+const server=await createServer({server:{host:'127.0.0.1',port:0},logLevel:'error'});await server.listen();
+const browser=await chromium.launch({channel:'msedge',headless:true});
+try{
+ const page=await browser.newPage({viewport:{width:1700,height:1000},colorScheme:'dark'}),errors=[];page.on('pageerror',error=>errors.push(error.message));page.setDefaultTimeout(10000);
+ await page.addInitScript(base64=>{window.previewDocx=base64;},previewDocument().toString('base64'));
+ await page.addInitScript(()=>{window.previewMarkdown='<div align="center"><img src="inline.svg" alt="本地插图" /></div>\n\n# 内置预览标题\n\n这是 **加粗正文**。\n\n| 文件 | 状态 |\n|---|---|\n| Markdown | 已渲染 |\n\n<script>window.previewInjected=true</script>\n\n```typescript\nconst rendered = true;\n```\n\n[跳到下文](#下文)\n\n## 下文\n\n- [x] 已完成';});
+ await page.goto(server.resolvedUrls.local[0]+'tests/ui/room-preview-fixture.html?sidebar');
+ const panel=page.getByRole('complementary',{name:'文件预览侧栏'}),input=page.getByRole('textbox',{name:'在聊天室里说话'});
+ await expect(page.getByRole('button',{name:'打开文件预览'})).toBeVisible();await expect(panel).toHaveCount(0);
+ await input.fill('保留聊天中的草稿');
+ await page.locator('.generated-file').filter({hasText:'测试说明.md'}).click();
+ await expect(panel.getByRole('heading',{name:'内置预览标题'})).toBeVisible();await expect(panel.locator('.preview-panel-header .file-preview-toolbar')).toBeVisible();await expect(panel.locator('.preview-tab-content .file-preview-toolbar')).toHaveCount(0);await expect(panel.locator('strong').filter({hasText:'加粗正文'})).toBeVisible();assert.equal(await page.getByRole('dialog').count(),0);assert.equal(await input.inputValue(),'保留聊天中的草稿');
+ await expect(panel.getByRole('table')).toBeVisible();await expect(panel.getByRole('img',{name:'本地插图'})).toBeVisible();assert.equal(await panel.locator('.preview-markdown script').count(),0);assert.equal(await page.evaluate(()=>window.previewInjected),undefined);assert.ok(!(await panel.locator('.preview-markdown').innerText()).includes('<div'));
+ await page.waitForFunction(()=>document.documentElement.dataset.panelMoving===undefined);
+ const chat=await page.locator('.preview-conversation').boundingBox(),preview=await panel.boundingBox();assert.ok(chat.width>=300&&chat.x+chat.width<=preview.x+1);await expect(input).toBeVisible();
+ const sourceToggle=panel.getByRole('button',{name:'查看源码',exact:true});await expect(sourceToggle).toHaveText('');await expect(sourceToggle).toHaveAttribute('title','查看源码');await expect(sourceToggle.locator('svg')).toHaveCount(1);await sourceToggle.click();await expect(panel.getByRole('button',{name:'排版预览',exact:true})).toHaveText('');await expect(panel.locator('.syntax-source')).toContainText('# 内置预览标题');await panel.getByRole('button',{name:'排版预览',exact:true}).click();
+ const divider=page.getByRole('separator',{name:'文件预览宽度'}),box=await divider.boundingBox(),before=(await panel.boundingBox()).width;
+ await page.mouse.move(box.x+2,box.y+200);await page.mouse.down();await page.mouse.move(box.x-90,box.y+200);await page.mouse.up();await expect.poll(async()=>(await panel.boundingBox()).width).toBeGreaterThan(before+50);
+ await page.locator('.attachment-file-preview').filter({hasText:'示例.ts'}).click();await expect(panel.locator('.hljs-keyword').first()).toBeVisible();await expect(panel.locator('.syntax-line-numbers')).toContainText('4');assert.equal(await panel.locator('.syntax-source img').count(),0);assert.equal(await page.evaluate(()=>window.previewInjected),undefined);
+ const colors=await panel.locator('.syntax-source').evaluate(node=>({keyword:getComputedStyle(node.querySelector('.hljs-keyword')).color,string:getComputedStyle(node.querySelector('.hljs-string')).color}));assert.notEqual(colors.keyword,colors.string);
+ await expect(panel.getByRole('button',{name:'自动换行'})).toHaveCount(0);
+ await page.locator('.attachment-file-preview').filter({hasText:'DS报告.docx'}).click();await expect(panel.locator('.word-layout-preview table')).toBeVisible();await expect(panel.locator('.word-layout-preview')).toContainText('表格、图片与段落');await expect(panel.locator('.word-layout-preview img')).toHaveCount(1);await expect.poll(()=>panel.locator('.word-layout-preview img').evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);assert.equal(await panel.locator('.word-layout-preview script').count(),0);await expect(panel.locator('.word-layout-preview').getByText('UNSAFE_ALTCHUNK')).toHaveCount(0);assert.equal(await page.evaluate(()=>window.previewInjected),undefined);
+ await mkdir('tests/ui/results',{recursive:true});await page.screenshot({path:'tests/ui/results/file-preview-word.png'});
+ await panel.getByRole('button',{name:'查看纯文本'}).click();await expect(panel.locator('.syntax-source')).toContainText('DS 的 Word 正文');await panel.getByRole('button',{name:'排版预览',exact:true}).click();
+ await page.getByRole('button',{name:'参考图片.png',exact:true}).click();await expect(panel.getByRole('img',{name:'参考图片.png'})).toBeVisible();await panel.getByRole('button',{name:'放大文件预览'}).click();await expect(panel.getByRole('button',{name:'恢复文件预览为100%'})).toHaveText('125%');await panel.getByRole('button',{name:'恢复文件预览为100%'}).click();
+ assert.equal(await panel.getByRole('tab').count(),4);await panel.getByRole('tab',{name:'示例.ts',exact:true}).click();await expect(panel.locator('.hljs-keyword').first()).toBeVisible();await page.screenshot({path:'tests/ui/results/file-preview-code.png'});
+ await panel.getByRole('button',{name:'收起预览侧栏'}).click();await expect(panel).toHaveCount(0);await page.getByRole('button',{name:'打开文件预览'}).click();await expect(panel.getByRole('tab')).toHaveCount(4);
+ await panel.getByRole('button',{name:'最大化文件预览'}).click();await expect(input).not.toBeVisible();await panel.getByRole('button',{name:'还原预览分栏'}).click();await expect(input).toBeVisible();assert.equal(await input.inputValue(),'保留聊天中的草稿');
+ await page.locator('.attachment-file-preview').filter({hasText:'无法读取.txt'}).click();await expect(panel.getByRole('alert')).toContainText('文件已移动');await panel.getByRole('tab',{name:'测试说明.md',exact:true}).click();await expect(panel.getByRole('heading',{name:'内置预览标题'})).toBeVisible();
+ await page.locator('[data-message-id=result]').getByRole('button',{name:'展开全文',exact:true}).click();await page.getByRole('button',{name:'本地说明',exact:true}).click();await expect(panel.getByRole('tab',{name:'README.md',exact:true})).toBeVisible();assert.ok(await page.evaluate(()=>window.testCalls.some(call=>call.method==='file.preview'&&call.params.source==='workspace'&&call.params.id==='s')));
+ for(const width of [1100,800,580]){await page.setViewportSize({width,height:800});await expect(panel).toBeVisible();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));const bounds=await panel.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=width+1);}
+ await panel.getByRole('button',{name:'收起预览侧栏'}).click();await expect(input).toBeVisible();assert.equal(await input.inputValue(),'保留聊天中的草稿');assert.equal(await page.evaluate(()=>window.testCalls.filter(call=>['room.send','file.export','file.download','attachment.reveal'].includes(call.method)).length),0);assert.deepEqual(errors,[]);
+ await page.setViewportSize({width:1700,height:1000});
+ await page.goto(server.resolvedUrls.local[0]+'tests/ui/room-preview-fixture.html?sidebar&glass');
+ await page.locator('.generated-file').filter({hasText:'测试说明.md'}).click();
+ await page.locator('.attachment-file-preview').filter({hasText:'示例.ts'}).click();
+ await expect(panel.getByRole('tab',{name:'示例.ts',exact:true})).toBeVisible();
+ await page.locator('[data-message-id=result]').getByRole('button',{name:'展开全文',exact:true}).click();
+ const link=page.getByRole('button',{name:'本地说明',exact:true});await expect(link).toContainText('README.md');await expect(link.locator('.md-file-link-type')).toHaveText('MD');
+ assert.ok(await link.evaluate(node=>node.getBoundingClientRect().width>80&&getComputedStyle(node.querySelector('.md-file-link-label')).clipPath==='none'));
+ await page.mouse.move(20,20);
+ const tabPaint=await panel.locator('.preview-tab.selected').evaluate(node=>{const parent=node.parentElement.getBoundingClientRect(),r=node.getBoundingClientRect();return {fits:r.top>=parent.top&&r.bottom<=parent.bottom,children:[...node.querySelectorAll('button')].map(button=>({background:getComputedStyle(button).backgroundColor,filter:getComputedStyle(button).backdropFilter}))};});
+ assert.equal(tabPaint.fits,true);assert.ok(tabPaint.children.every(style=>style.background==='rgba(0, 0, 0, 0)'&&style.filter==='none'));
+ await page.screenshot({path:'tests/ui/results/file-preview-glass-tabs.png'});
+ assert.deepEqual(errors,[]);
+ console.log('PASS: single-click right sidebar; rendered Markdown/source; TypeScript syntax colors/line numbers and inert HTML; real DOCX tables/images and disabled HTML chunks; image zoom; tabs/collapse/resize/maximize; retained chat draft; workspace links; error recovery; four widths; no model calls or file writes.');
+}finally{await browser.close();await server.close();}

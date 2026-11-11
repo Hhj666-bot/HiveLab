@@ -1,0 +1,16 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {QuotaOverview} from '../../src/renderer/quota';
+import {memberCheck} from '../../src/renderer/setup';
+import {makeTeam,TeamProvider} from '../../src/renderer/members';
+import {ExtensionFeatures} from '../../src/renderer/extensions';
+import {DEFAULT_PROFILE,DEFAULT_SETTINGS} from '../../src/shared/defaults';
+import type {Snapshot,MemberProfile} from '../../src/shared/types';
+import '../../src/renderer/styles.css';
+import '../../src/renderer/team.css';
+const members=[['sol','Sol','codex'],['astra','Astra','codex'],['ds','DS','dsh'],['kimi','Kimi','acp-catalogkimi'],['glm','GLM','acp-catalogzcode'],['gemini','Gemini','acp-antigravity']].map(([id,name,executor])=>({id,name,executor})) as MemberProfile[];
+const providers=[...new Set(members.map(m=>m.executor))].map(id=>({id,name:id,available:true,stale:false,auth:id==='codex'?'subscription':id==='dsh'?'account':'api',detail:'isolated saved connection',capabilities:{steer:false,cancel:'request',streaming:true,write:false,history:true}}));
+const snapshot={backendReady:true,settings:DEFAULT_SETTINGS,profile:DEFAULT_PROFILE,members,providers,executors:[{id:'acp-catalogkimi',catalogId:'kimi',authentication:'kimi-api-cn',args:[]},{id:'acp-catalogzcode',catalogId:'zcode',authentication:'glm-api-cn',args:[]},{id:'acp-antigravity',args:['/test/launch-official-acp.cjs']}],quotas:{},projects:[],sessions:[],runs:[]} as unknown as Snapshot;
+const calls:any[]=[];(window as any).balanceCalls=calls;(window as any).failGlm=false;
+const invoke:any=async(method:string,params:any)=>{calls.push({method,provider:params?.provider});if(params?.provider==='acp-catalogzcode'&&(window as any).failGlm)throw Error('模拟 GLM 连接失败');return {};};
+createRoot(document.getElementById('root')!).render(<ExtensionFeatures.Provider value={{tokenActivity:false}}><TeamProvider value={makeTeam(members)}><output id="api-status">{providers.filter(p=>p.id==='acp-catalogkimi'||p.id==='acp-catalogzcode').map(p=><span key={p.id}>{p.id}: {memberCheck(p as any,snapshot).text}</span>)}</output><QuotaOverview snapshot={snapshot} invoke={invoke} onClose={()=>{}}/></TeamProvider></ExtensionFeatures.Provider>);

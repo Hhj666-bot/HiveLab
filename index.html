@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f0e7" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: hivelab-startup: hivelab-asset: hivelab-background:; media-src 'self' hivelab-startup: hivelab-background: hivelab-preview:; connect-src 'self' hivelab-startup: hivelab-asset: hivelab-background:; object-src 'none'; base-uri 'none'; frame-src hivelab-wallpaper: hivelab-preview:" />
+    <link rel="icon" type="image/svg+xml" href="/brand/hivelab.svg" />
+    <title>HiveLab 合屋 · 我们的 AI 工作室</title>
+    <link rel="stylesheet" href="/startup/boot.css" />
+    <script src="/startup/boot.js" defer></script>
+  </head>
+  <body>
+    <div id="hivelab-startup" data-mode="tunnel" role="dialog" aria-modal="true" aria-label="HiveLab 启动动画">
+      <video class="startup-film" preload="none" muted playsinline tabindex="-1" aria-hidden="true"></video>
+      <div class="startup-scene" aria-hidden="true" hidden><img alt="" /><div></div></div>
+      <canvas class="startup-logo" aria-hidden="true"></canvas>
+      <canvas class="startup-tunnel" aria-hidden="true"></canvas>
+      <div class="startup-brand"><img src="./brand/hivelab.svg" width="88" height="88" alt="" /><strong>HiveLab 合屋</strong><span>我们的 AI 工作室</span></div>
+      <div class="startup-footer"><p class="startup-status" role="status"><span class="startup-dot" aria-hidden="true"></span><span data-startup-status>正在准备工作室…</span></p><div class="startup-controls"><button type="button" data-startup-reload hidden>重新加载</button><button type="button" data-startup-sound aria-pressed="false">开启声音</button><button type="button" data-startup-skip>跳过动画 · Esc</button></div></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/renderer/main.tsx"></script>
+  </body>
+</html>

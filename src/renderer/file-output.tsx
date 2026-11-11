@@ -1,0 +1,26 @@
+import {t} from './i18n';
+import {useEffect,useRef,useState,type ReactNode} from 'react';
+import {Check,Copy,Download,FileText} from 'lucide-react';
+import type {Invoke} from './ui';
+import type {GeneratedFile} from '../shared/file-output';
+import './file-output.css';
+import {FilePreview} from './file-preview';
+import {useExtensionFeature} from './extensions';
+import {useFileActions} from './file-actions';
+export function ExportAnswer({text,children}:{text:string;children?:ReactNode}){const download=useExtensionFeature('fileOutputs');return <AnswerActions text={text} download={download}>{children}</AnswerActions>;}
+function AnswerActions({text,download,children}:{text:string;download:boolean;children?:ReactNode}){const [error,setError]=useState(''),[busy,setBusy]=useState(false),[copied,setCopied]=useState(false);
+  async function save(format:string){setBusy(true);setError('');try{await window.hivelab.invoke('file.export',{name:t("HiveLab 合屋 回答"),format,content:text});}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function copy(){setError('');try{await navigator.clipboard.writeText(text);setCopied(true);window.setTimeout(()=>setCopied(false),1400);}catch(e){setError((e as Error).message);}}
+  return <div className="answer-export" role="group" aria-label={t("答复操作")}><div className="md-code-bar">{text&&<>{download&&<details><summary className="glass-action" aria-label={t("另存为答复")} title={t("另存为答复")}><Download size={14}/></summary><div className="answer-export-menu md-code">{[['md','Markdown'],['pdf','PDF'],['docx','Word'],['txt',t("文本")]].map(([format,label])=><button type="button" key={format} disabled={busy} onClick={event=>{event.currentTarget.closest('details')?.removeAttribute('open');void save(format);}}><FileText size={13}/>{label}</button>)}</div></details>}<button type="button" className="glass-action" aria-label={t("复制答复")} title={copied?t("已复制答复"):t("复制答复")} onClick={()=>void copy()}>{copied?<Check size={14}/>:<Copy size={14}/>}<span className="answer-action-status" aria-live="polite">{copied?t("已复制"):''}</span></button></>}{children}</div>{busy&&<small role="status">{t("正在生成文件…")}</small>}{error&&<small role="alert">{error}</small>}</div>;
+}
+function GeneratedImage({file,invoke,onOpen}:{file:GeneratedFile;invoke:Invoke;onOpen:()=>void}){
+  const [src,setSrc]=useState(`hivelab-generated://${file.id}`),[failed,setFailed]=useState(false);
+  const tried=useRef(false);
+  function onError(){if(tried.current){setFailed(true);return;}tried.current=true;void invoke<{kind:string;dataUrl?:string}>('file.preview',{source:'generated',id:file.id}).then(data=>{if(data?.kind==='image'&&data.dataUrl)setSrc(data.dataUrl);else setFailed(true);}).catch(()=>setFailed(true));}
+  if(failed) return <div className="generated-file-card action-card"><button type="button" className="generated-file action-card-main glass-content-action" title={t("点开预览")} onClick={onOpen} onDoubleClick={onOpen}><FileText size={20}/><span><strong>{file.name}</strong><small>{t("点击预览或下载")}</small></span></button></div>;
+  return <button type="button" className="generated-image-button glass-content-action" onClick={onOpen} onDoubleClick={onOpen} title={t("{0} · 点击放大", file.name)}><img className="generated-image" src={src} alt={file.name} loading="lazy" onError={onError}/></button>;
+}
+export function FileCards({runId,revision,invoke}:{runId:string;revision:string;invoke:Invoke}){const [files,setFiles]=useState<GeneratedFile[]>([]),[error,setError]=useState(''),[preview,setPreview]=useState<GeneratedFile>();useEffect(()=>{let stopped=false;const load=()=>void invoke<GeneratedFile[]>('file.outputs',{runId},undefined,{background:true}).then(value=>{if(!stopped){setFiles(Array.isArray(value)?value:[]);setError('');}}).catch(e=>{if(!stopped)setError((e as Error).message);});load();const timer=revision==='running'||revision==='waiting_user'?setInterval(load,3000):undefined;return()=>{stopped=true;if(timer)clearInterval(timer);};},[runId,revision,invoke]);
+ const actions=useFileActions(invoke,setError);
+ return files.length?<div className="generated-file-cards" aria-label={t("可保存成果")}>{files.map(file=>file.format==='png'?<GeneratedImage key={file.id} file={file} invoke={invoke} onOpen={()=>setPreview(file)}/>:<div className="generated-file-card action-card" key={file.id} onContextMenu={event=>actions.context(event,{source:'generated',id:file.id,name:file.name},()=>setPreview(file))}><button type="button" className="generated-file action-card-main glass-content-action" title={t("在右侧预览")} onClick={()=>setPreview(file)} onDoubleClick={()=>setPreview(file)}><FileText size={20}/><span><strong>{file.name}</strong><small>{file.format.toUpperCase()} · {(file.bytes/1024).toFixed(1)} KB</small></span></button><button type="button" className="generated-file-download glass-content-action" aria-label={t("另存为 {0}", file.name)} onClick={()=>void invoke('file.download',{id:file.id}).catch(e=>setError((e as Error).message))}><Download size={15}/></button></div>)}{actions.menu}{preview&&<FilePreview file={{source:'generated',id:preview.id,name:preview.name}} invoke={invoke} onClose={()=>setPreview(undefined)}/>} {error&&<small role="alert">{error}</small>}</div>:error?<small role="alert">{t("成果文件读取失败：{0}", error)}</small>:null;
+}

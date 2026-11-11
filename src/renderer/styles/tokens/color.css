@@ -1,0 +1,16 @@
+:root {
+  --brand-primary: #38bdf8;
+  --brand-primary-hover: #0ea5e9;
+  --brand-primary-pressed: #0284c7;
+  --brand-primary-ink: #00131d;
+  --brand: var(--brand-primary);
+  --brand-ink: var(--brand-primary-ink);
+  --focus: var(--brand-primary-pressed);
+  --status-ok: var(--ok);
+  --status-warn: var(--warn);
+  --status-error: var(--bad);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --focus: var(--brand-primary); }
+}
+:root[data-theme="dark"] { --focus: var(--brand-primary); }

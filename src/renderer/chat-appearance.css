@@ -1,0 +1,76 @@
+.page-background .room-line:not(.mine) .room-bubble,.page-background .run-activity,.chat-preview-reply {
+  background-color:color-mix(in srgb,var(--chat-reply-color,var(--m-soft,var(--surface))) var(--chat-reply-opacity,100%),transparent);
+  color:var(--chat-reply-ink,var(--ink));
+}
+.page-background .room-line.mine .room-bubble,.chat-preview-mine {
+  background-color:color-mix(in srgb,var(--chat-mine-color,var(--brand)) var(--chat-mine-opacity,100%),transparent);
+  color:var(--chat-mine-ink,var(--brand-ink));
+}
+.page-background .room .composer.room-input,.chat-preview-input,.attention-bubble,.attention-bubble-panel {
+  background-color:color-mix(in srgb,var(--chat-input-color,var(--surface)) var(--chat-input-opacity,100%),transparent);
+  color:var(--chat-input-ink,var(--ink));
+}
+.page-background[data-chat-reply-custom=true] .room-line:not(.mine) .room-bubble,.page-background[data-chat-reply-custom=true] .run-activity {
+  --ink:var(--chat-reply-ink);--ink-2:var(--chat-reply-ink);--ink-3:var(--chat-reply-ink);
+}
+.page-background[data-chat-input-custom=true] .room .composer.room-input {
+  --ink:var(--chat-input-ink);--ink-2:var(--chat-input-ink);--ink-3:var(--chat-input-ink);
+}
+.page-background .room .composer.room-input textarea {color:inherit;}
+.page-background .room .composer.room-input textarea::placeholder {color:var(--chat-input-ink,var(--ink-3));}
+/* Quotations remain part of the selected reply surface rather than adding
+   an opaque theme-coloured card on top of a coloured glass bubble. */
+.page-background .room-line:not(.mine) .room-bubble .markdown blockquote {background:color-mix(in srgb,currentColor 5%,transparent);border-left-color:color-mix(in srgb,currentColor 24%,transparent);color:inherit;}
+.chat-appearance-field {border:1px solid var(--line);border-radius:var(--r-md);padding:12px;margin:0 0 16px;min-width:0;}
+.chat-appearance-field legend {padding:0 6px;font-weight:600;}
+.chat-appearance-controls {display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.chat-appearance-controls input[type=color] {width:52px;height:34px;padding:3px;cursor:pointer;}
+.chat-appearance-controls .field {margin:0;}
+.chat-appearance-apply {display:flex;align-items:center;justify-content:flex-end;gap:8px 12px;flex-wrap:wrap;margin-top:12px;}
+.chat-appearance-apply>label {display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:var(--fs-sm);color:var(--ink-2);}
+.chat-appearance-apply input {accent-color:var(--focus);}
+.chat-appearance-apply>small {color:var(--ink-3);font-size:var(--fs-xs);}
+.chat-transparency {flex:1 1 180px;}
+.chat-appearance-controls .chat-transparency {display:grid;grid-template-columns:1fr auto;gap:6px;}
+.chat-transparency input {grid-column:1/-1;}
+.chat-appearance-preview {display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:var(--r-md);background:repeating-conic-gradient(color-mix(in srgb,var(--ink) 8%,var(--surface)) 0% 25%,var(--surface) 0% 50%) 0 / 24px 24px;}
+.chat-appearance-preview>div {padding:12px;border:1px solid #8888;border-radius:var(--r-md);}
+.chat-preview-reply {align-self:flex-start;}
+.chat-preview-mine {align-self:flex-end;}
+
+.personal-room[class*="member-"]{--focus:var(--m)}
+.page-background .personal-room .room-line.mine .room-bubble{background-color:color-mix(in srgb,var(--chat-mine-color,var(--m-soft,var(--brand))) var(--chat-mine-opacity,100%),transparent);color:var(--chat-mine-ink,var(--ink));border-color:var(--m-line)}
+.page-background .personal-room .composer.room-input{border-color:var(--m-line)}
+
+/* Details stay translucent and more opaque than the reply behind them in either material mode. */
+.page-background :is(.room-bubble,.run-activity){--chat-reply-surface-opacity:var(--chat-reply-opacity,100%);--chat-detail-opacity:clamp(60%,calc(45% + var(--chat-reply-surface-opacity) * .5),94%)}
+.page-background :is(.room-bubble,.run-activity) :is(.md-code,.md-table,.activity-code,.runtime-diagnostics){background-color:color-mix(in srgb,var(--chat-reply-color,var(--surface)) var(--chat-detail-opacity),transparent);color:var(--chat-reply-ink,var(--ink));--adaptive-ink:var(--chat-reply-ink,var(--ink))}
+.page-background :is(.room-bubble,.run-activity) :is(.md-code-bar,.md-table th){background:transparent;color:inherit}
+.page-background :is(.room-bubble,.run-activity) :is(.syntax-code,.activity-code pre,.activity-text pre){background:transparent;color:inherit}
+.page-background .run-activity :is(.activity-code>small,.runtime-diagnostics>summary,.runtime-diagnostics>summary span){color:inherit}
+.page-background .run-activity .activity-toolbar button.selected{background:color-mix(in srgb,var(--chat-reply-ink,var(--ink)) 12%,transparent);color:inherit}
+.page-background :is(.room-bubble,.run-activity) .markdown :not(pre)>code{background:color-mix(in srgb,var(--chat-reply-color,var(--surface)) var(--chat-detail-opacity),transparent);border:1px solid color-mix(in srgb,var(--chat-reply-ink,var(--ink)) 18%,transparent);border-radius:var(--r-xs);padding:0 4px;color:var(--chat-reply-ink,var(--ink));--adaptive-ink:var(--chat-reply-ink,var(--ink));text-shadow:none}
+:root[data-adaptive-text=true] :is(.room-bubble,.run-activity) :is(.md-code,.md-table,.activity-code) :is(*){text-shadow:none!important}
+.page-background :is(.room-bubble,.run-activity) .markdown :not(pre)>code{backdrop-filter:none;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.page-background[data-chat-reply-member=true] .room-line:not(.mine),.page-background[data-chat-reply-member=true] .approval-card,.chat-preview-reply[data-member-color=true]{--chat-reply-color:color-mix(in srgb,var(--m,var(--surface)) 12%,var(--surface));--chat-reply-ink:var(--chat-neutral-ink)}
+.page-background[data-chat-mine-member=true] .room-line.mine,.chat-preview-mine[data-member-color=true]{--chat-mine-color:color-mix(in srgb,var(--m,var(--surface)) 12%,var(--surface));--chat-mine-ink:var(--chat-neutral-ink)}
+.page-background[data-chat-input-member=true] .composer.room-input,.chat-preview-input[data-member-color=true],.attention-bubble[data-member-color=true],.attention-bubble-panel[data-member-color=true]{--chat-input-color:color-mix(in srgb,var(--m,var(--surface)) 12%,var(--surface));--chat-input-ink:var(--chat-neutral-ink)}
+.chat-color-presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chat-color-presets>button{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 8px;border:1px solid var(--line);border-radius:var(--r-sm);background:transparent;color:var(--ink-2);font-size:var(--fs-md)}
+.chat-color-presets>button:is(:hover,[aria-pressed=true]){border-color:var(--focus);background:color-mix(in srgb,var(--ink) 4%,transparent);color:var(--ink)}
+.chat-color-presets>button[aria-pressed=true]{box-shadow:0 0 0 1px var(--focus)}
+.chat-color-swatch{width:22px;height:22px;flex:none;border:1px solid color-mix(in srgb,var(--ink) 15%,transparent);border-radius:var(--r-xs)}
+.chat-appearance-controls .button[aria-pressed=true]{color:var(--focus);border-color:color-mix(in srgb,var(--focus) 45%,transparent)}
+:root{--chat-neutral-ink:light-dark(#1d1d1f,#fff)}
+
+.page-background .approval-card{background-color:color-mix(in srgb,var(--chat-reply-color,var(--m-soft,var(--surface))) min(100%,calc(var(--chat-reply-opacity,100%) + 8%)),transparent);color:var(--chat-reply-ink,var(--ink));border-radius:var(--r-lg)}
+.page-background .approval-card :is(.approval-command,.approval-detail){background:color-mix(in srgb,var(--chat-reply-color,var(--surface)) 45%,transparent);color:inherit;border:1px solid color-mix(in srgb,currentColor 12%,transparent)}
+.page-background .approval-card :is(.approval-card-header,.approval-card-header strong,.approval-card-header time,.approval-explainer){color:inherit}
+.room-message-content>.personal-approvals{display:flex;flex-direction:column;gap:12px;width:86%;max-width:100%;padding-left:46px;min-width:0}
+.room-message-content>.approval-card{width:calc(86% - 46px);margin-left:46px}
+
+/* A file is one surface; its contents use the message's material. */
+.page-background .room .room-line :is(.generated-file-card,.attachment-chip){background-color:color-mix(in srgb,var(--chat-reply-color,var(--m-soft,var(--surface))) var(--chat-reply-opacity,100%),transparent);color:var(--chat-reply-ink,var(--ink))}
+.page-background .room .room-line.mine :is(.generated-file-card,.attachment-chip){background-color:color-mix(in srgb,var(--chat-mine-color,var(--brand)) var(--chat-mine-opacity,100%),transparent);color:var(--chat-mine-ink,var(--ink))}
+.page-background .personal-room .room-line.mine :is(.generated-file-card,.attachment-chip){background-color:color-mix(in srgb,var(--chat-mine-color,var(--m-soft,var(--brand))) var(--chat-mine-opacity,100%),transparent)}
+.page-background .composer .attachment-chip{background-color:color-mix(in srgb,var(--chat-input-color,var(--surface)) var(--chat-input-opacity,100%),transparent);color:var(--chat-input-ink,var(--ink))}

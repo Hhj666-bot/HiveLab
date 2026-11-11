@@ -1,0 +1,39 @@
+.answer-export{position:relative;border:0;border-radius:0;background:transparent;align-self:flex-start;width:fit-content;max-width:100%;margin:2px 0;overflow:visible;font-size:var(--fs-md);color:var(--ink-2);box-shadow:none}
+.answer-export:has(details[open],.reaction-picker){z-index:12}
+.answer-export>.md-code-bar{background:transparent;color:inherit;justify-content:flex-start;flex-wrap:wrap;gap:4px;border-radius:0;padding:0}
+.answer-export details{position:relative}
+.answer-export summary{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--ink-2);cursor:pointer;list-style:none}
+.answer-export summary::-webkit-details-marker{display:none}
+.answer-export summary:not(.glass-action):hover,.answer-export details[open]>summary:not(.glass-action){background:var(--surface)}
+.answer-export details>.answer-export-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:10;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;min-width:190px;margin:0;padding:6px;box-shadow:var(--shadow)}
+.answer-export-menu button{justify-content:flex-start;padding:6px 8px}
+.answer-export>small{display:block;padding:4px 10px}
+.answer-export :is(summary,.md-code-bar>button,.room-tools>button,.reaction-add){display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:30px;height:30px;padding:0 8px;border:0;border-radius:var(--r-xs);font-size:var(--fs-md);line-height:1;color:inherit;text-decoration:none;background:transparent;white-space:nowrap}
+.room .answer-export :is(.room-reactions,.room-reactions.empty,.room-tools){position:static;align-self:auto;display:inline-flex;align-items:center;gap:2px;margin:0;opacity:1;white-space:nowrap}
+.room .answer-export .room-tools{flex-wrap:nowrap}
+.answer-export :is(.reaction-add,.room-more-button){width:30px;padding:0;opacity:1}
+.answer-export .room-reply-button{margin:0}
+.answer-export :is(summary,.md-code-bar>button,.room-tools>button,.reaction-add):not(.glass-action):hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:inherit}
+.answer-export :is(button,summary):focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.generated-file-cards{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.generated-file{display:flex;align-items:center;gap:10px;text-align:left;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;max-width:100%;cursor:pointer}.generated-file span{display:flex;flex-direction:column;min-width:0}.generated-file strong{overflow:hidden;text-overflow:ellipsis}.generated-file small{opacity:.6}.md-code-bar .code-download{margin-left:auto}
+.generated-image-button{display:block;padding:0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);overflow:hidden;cursor:zoom-in;max-width:min(100%,760px)}
+.generated-image{display:block;max-width:100%;height:auto}
+.generated-image-button:hover{border-color:var(--line-strong)}
+
+.answer-export .md-code-bar :is(.answer-export-menu,.reaction-picker) button{color:inherit}
+
+:root .answer-export :is(.md-code-bar>details>summary,.md-code-bar>button,.room-tools>button,.reaction-add){display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;min-height:28px;padding:0;border-radius:var(--r-sm)}
+.answer-export>.md-code-bar>details{height:28px}.answer-export .room-reactions.empty{gap:0}.answer-export :is(summary,button)>svg{flex:none}
+.answer-export .answer-action-status{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.room .room-fold-button{margin:4px 0;--control-context-opacity:var(--chat-reply-opacity,100%)}
+:root .room .generated-image-actions{gap:4px;padding:7px 0}
+:root .room :is(.generated-image-preview,.generated-image-button){background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none}
+:root .room .composer-bottom>:is(.composer-tool:not(.reply-limits-button),.attach-button){display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;min-height:28px;padding:0;gap:0;border:0;box-shadow:none;background:transparent}
+:root .room .composer-bottom>.composer-config{--control-context-opacity:28%;--control-glass-tint:var(--chat-input-color,var(--surface));display:inline-flex;align-items:center;gap:7px;width:auto;max-width:100%;min-width:0;height:30px;min-height:30px;padding:0 9px;border:1px solid var(--glass-rim,var(--line));border-radius:var(--r-sm);background-color:color-mix(in srgb,var(--control-glass-tint) var(--control-glass-opacity),transparent);font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--ink);white-space:nowrap}
+:root .room .composer-bottom>button.composer-config{max-width:min(420px,100%);flex:0 1 auto}
+.composer-model-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.composer-effort{flex:none}
+.composer-permission{flex:none}
+.composer-permission>svg{pointer-events:none}
+:root .composer-permission>select{width:auto;max-width:100%;height:100%;padding:0;border:0;background:transparent;font:inherit;cursor:pointer}

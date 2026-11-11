@@ -1,0 +1,14 @@
+:root {
+  --glass-finish-default:blur(1.25px) contrast(1.3) brightness(.95) saturate(.95);
+  --glass-refraction-default:blur(0px);
+}
+:root[data-liquid-glass=true] {
+  --navigation-filter:var(--liquid-finish,var(--glass-finish-default));
+  --navigation-menu-background:color-mix(in srgb,var(--navigation-tint,var(--bg)) var(--glass-menu-opacity,74%),transparent);
+  --navigation-panel-background:color-mix(in srgb,var(--navigation-tint,var(--bg)) var(--workspace-header-opacity,74%),transparent);
+  --glass-dialog-shade:rgb(15 18 22 / 24%);
+  --glass-dialog-blur:5px;
+  --glass-rim:color-mix(in srgb,var(--ink) 16%,transparent);
+  --glass-highlight:rgb(255 255 255 / 24%);
+  --glass-shadow:var(--shadow-float);
+}

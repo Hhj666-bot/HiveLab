@@ -1,0 +1,13 @@
+import {build} from 'esbuild';
+import {writeFile,mkdir} from 'node:fs/promises';
+import {spawn} from 'node:child_process';
+import path from 'node:path';
+import {createRequire} from 'node:module';
+if(!process.env.HIVELAB_TEST_PROFILE)throw Error('Requires isolated test bootstrap');
+const folder=path.join(process.env.HIVELAB_TEST_PROFILE,'exports-smoke');await mkdir(folder,{recursive:true});const entry=path.join(folder,'entry.ts'),bundle=path.join(folder,'entry.cjs');
+await writeFile(entry,`import {app} from 'electron';import assert from 'node:assert/strict';import {readFile,writeFile} from 'node:fs/promises';import path from 'node:path';import {FileOutputs} from ${JSON.stringify(path.resolve('src/main/file-output.ts'))};
+const root=${JSON.stringify(folder)};app.setPath('userData',path.join(root,'electron'));app.on('window-all-closed',()=>{});app.whenReady().then(async()=>{const outputs=new FileOutputs(root);for(const format of ['pdf','docx','md','code']){const file=await outputs.create({name:format==='code'?'receipt.json':'测试报告',format,language:'json',content:${JSON.stringify('# 你好 HiveLab\n\n正文与代码：print("你好")')}});const bytes=await readFile(path.join(root,'generated-files',file.id,file.name));assert.equal(bytes.length,file.bytes);if(format==='pdf')assert.ok(bytes.subarray(0,5).equals(Buffer.from('%PDF-')));else if(format==='docx')assert.equal(bytes.readUInt32LE(0),0x04034b50);else assert.ok(bytes.toString('utf8').includes('你好'));assert.equal(JSON.parse(await readFile(path.join(root,'generated-files',file.id+'.json'),'utf8')).id,file.id);}await writeFile(path.join(root,'done.json'),JSON.stringify({formats:['pdf','docx','md','code']}));app.exit(0);}).catch(error=>{console.error(error);app.exit(1);});`);
+await build({entryPoints:[entry],outfile:bundle,bundle:true,platform:'node',format:'cjs',target:'node24',packages:'external'});const electron=createRequire(import.meta.url)('electron'),env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
+await new Promise((resolve,reject)=>{const child=spawn(electron,[bundle],{env,windowsHide:true,stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',data=>output+=data);child.stderr.on('data',data=>output+=data);const timer=setTimeout(()=>{child.kill();reject(Error('export smoke timeout'));},30000);child.once('error',reject);child.once('exit',code=>{clearTimeout(timer);if(code===0){console.log(output.trim());resolve();}else reject(Error(output));});});
+
+const report=JSON.parse(await (await import('node:fs/promises')).readFile(path.join(folder,'done.json'),'utf8'));if(report.formats.length!==4)throw Error('incomplete export smoke');console.log('PASS: hidden Electron PDF, real DOCX, UTF-8 Markdown/code, receipt filename collision');

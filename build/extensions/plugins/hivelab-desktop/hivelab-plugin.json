@@ -1,0 +1,160 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-desktop",
+  "name": "界面元素操作",
+  "description": "所有执行端共用：按 Windows 无障碍树读取窗口、查找控件并点击、填写、选择，不截图、不动鼠标；保留任务授权及屏幕提示。基于 agent-desktop（Apache-2.0）。",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "desktop",
+      "description": "按界面元素操作 Windows 窗口：读取无障碍树，不截图、不动鼠标。步骤：windows 列出窗口；snapshot 传 app（进程名，如 Notepad.exe）或 windowId，元素多时先 skeleton:true 再用 root 展开；或 find 按 role/name/text 查找。snapshot 结果里的 e 编号只对最近一次 snapshot 有效；find 结果给出完整编号 @s…:eN。把编号作为 ref 用于 click/set_value/select/toggle/check/uncheck/expand/collapse/scroll/scroll_to/clear，操作后再用 snapshot、find 或 get 核对。wait 可等元素（ref+predicate）、文字（text）、窗口标题（window）或毫秒（ms）。press 只发给已在前台的 app，只允许 ctrl/shift/alt 加普通键。界面变化后编号会失效，失败时重新 snapshot。操作可能把目标窗口带到前台；最小化窗口无法操作；导航列表点击无效时用 select。画布、游戏等没有无障碍信息的界面请改用 computer。首次使用需要用户批准。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "windows",
+              "snapshot",
+              "find",
+              "get",
+              "is",
+              "wait",
+              "click",
+              "set_value",
+              "clear",
+              "select",
+              "toggle",
+              "check",
+              "uncheck",
+              "expand",
+              "collapse",
+              "scroll",
+              "scroll_to",
+              "press"
+            ]
+          },
+          "app": {
+            "type": "string"
+          },
+          "windowId": {
+            "type": "string"
+          },
+          "ref": {
+            "type": "string"
+          },
+          "root": {
+            "type": "string"
+          },
+          "skeleton": {
+            "type": "boolean"
+          },
+          "interactiveOnly": {
+            "type": "boolean"
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "window",
+              "focused",
+              "menu",
+              "sheet"
+            ]
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 25000
+          },
+          "role": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "exact": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "property": {
+            "type": "string",
+            "enum": [
+              "text",
+              "value",
+              "title",
+              "bounds",
+              "role",
+              "states"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "visible",
+              "enabled",
+              "checked",
+              "focused",
+              "expanded",
+              "selected"
+            ]
+          },
+          "predicate": {
+            "type": "string",
+            "enum": [
+              "exists",
+              "enabled",
+              "visible",
+              "actionable",
+              "value"
+            ]
+          },
+          "window": {
+            "type": "string"
+          },
+          "ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 10000
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "left",
+              "right"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "keys": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "features": []
+}

@@ -1,0 +1,40 @@
+{
+  "extends": "./electron-builder.json",
+  "files": [
+    "dist/**/*",
+    "package.json",
+    "package-lock.json",
+    "!node_modules/**/*",
+    "!**/*.map",
+    "!dist/windows-*",
+    "!dist/verify-runtime-dependencies.ps1",
+    "!dist/hivelab.ico"
+  ],
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": [
+          "arm64"
+        ]
+      },
+      {
+        "target": "zip",
+        "arch": [
+          "arm64"
+        ]
+      }
+    ],
+    "category": "public.app-category.productivity",
+    "icon": "build/hivelab.icns",
+    "identity": "-",
+    "hardenedRuntime": false,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist",
+    "notarize": false,
+    "artifactName": "HiveLab-${version}-macOS-${arch}.${ext}"
+  },
+  "dmg": {
+    "title": "HiveLab 合屋 · Apple Silicon"
+  }
+}

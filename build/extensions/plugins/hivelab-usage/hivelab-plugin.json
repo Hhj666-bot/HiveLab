@@ -1,0 +1,11 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-usage",
+  "name": "每日用量",
+  "description": "展示实际回报的每日 Token 用量、热力图与统计。",
+  "version": "1.0.0",
+  "tools": [],
+  "features": [
+    "tokenActivity"
+  ]
+}

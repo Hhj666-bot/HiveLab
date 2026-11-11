@@ -1,0 +1,75 @@
+/* Available in the initial HTML, before the application bundle is evaluated. */
+#hivelab-startup{--startup-bg:#fff;--startup-ink:#174c42;--startup-muted:#67756d;--startup-chip:#ffffffeb;--startup-chip-ink:#36574e;--startup-line:#174c4229;position:fixed;inset:0;z-index:2147483000;isolation:isolate;display:grid;place-items:center;overflow:hidden;background:var(--startup-bg);color:var(--startup-ink);font:14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif;opacity:1;transition:opacity .7s ease;}
+@media(prefers-color-scheme:dark){#hivelab-startup:not([data-theme=light]){--startup-bg:#000;--startup-ink:#f6f4ec;--startup-muted:#a3a8a4;--startup-chip:#161716eb;--startup-chip-ink:#d9dcd8;--startup-line:#ffffff2e;}}
+#hivelab-startup[data-theme=dark]{--startup-bg:#000;--startup-ink:#f6f4ec;--startup-muted:#a3a8a4;--startup-chip:#161716eb;--startup-chip-ink:#d9dcd8;--startup-line:#ffffff2e;}
+#hivelab-startup[hidden]{display:none!important;}
+#hivelab-startup.startup-leaving{opacity:0;pointer-events:none;}
+/* The tunnel's window is a hole in the canvas: it shows the stored scene, or the live wallpaper beneath.
+   The overlay is role=dialog, which the glass rules style; through glass the wallpaper would be displaced. */
+#hivelab-startup{backdrop-filter:none;}
+#hivelab-startup.startup-revealing{background:transparent;}
+#hivelab-startup .startup-logo{position:absolute;inset:0;width:100%;height:100%;display:none;}
+#hivelab-startup[data-mode="tunnel"] .startup-logo{display:block;}
+#hivelab-startup .startup-tunnel{position:absolute;inset:0;width:100%;height:100%;display:none;pointer-events:none;}
+#hivelab-startup[data-mode="tunnel"] .startup-tunnel{display:block;}
+#hivelab-startup .startup-scene{position:absolute;inset:0;overflow:hidden;background:#272c32;}
+#hivelab-startup .startup-scene[hidden]{display:none;}
+#hivelab-startup .startup-scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:var(--startup-fit,cover);filter:blur(var(--startup-blur,0));transform:scale(1.025);}
+#hivelab-startup .startup-scene img:not([src]){display:none;}
+#hivelab-startup .startup-scene div{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,15,24,.25),transparent 35%,rgba(8,15,24,.5)),rgba(8,15,24,var(--startup-dim,.26));}
+#hivelab-startup .startup-film{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;transform-origin:center;transition:filter .7s ease;background:var(--startup-bg);visibility:hidden;}
+#hivelab-startup[data-source="custom"] .startup-film{object-fit:contain;}
+#hivelab-startup[data-mode="video"] .startup-film{visibility:visible;}
+#hivelab-startup.startup-leaving .startup-film{filter:blur(4px);}
+#hivelab-startup .startup-handoff-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;pointer-events:none;transition:opacity .65s ease;background:var(--startup-bg);}
+#hivelab-startup.startup-matching-home .startup-handoff-frame{opacity:1;}
+#hivelab-startup[data-reduced-motion="true"] .startup-handoff-frame{transition:none;}
+#hivelab-startup .startup-brand{position:relative;display:grid;justify-items:center;gap:15px;text-align:center;}
+#hivelab-startup .startup-brand img{width:88px;height:88px;filter:drop-shadow(0 12px 25px #174c4214);}
+#hivelab-startup .startup-brand strong{font-size:26px;font-weight:600;letter-spacing:.03em;}
+#hivelab-startup .startup-brand span{color:var(--startup-muted);letter-spacing:.14em;font-size:12px;}
+#hivelab-startup:not([data-mode="loading"]) .startup-brand{visibility:hidden;}
+#hivelab-startup .startup-footer{position:absolute;left:32px;right:32px;bottom:26px;display:flex;align-items:center;justify-content:space-between;gap:18px;transition:opacity .25s ease;}
+/* The opening stays bare: status and controls only appear when loading takes a while. */
+#hivelab-startup[data-mode="tunnel"]:not([data-waiting="true"]) .startup-footer{opacity:0;pointer-events:none;}
+#hivelab-startup.startup-revealing:not([data-waiting="true"]) .startup-footer{visibility:hidden;}
+#hivelab-startup.startup-cinematic-end .startup-footer{opacity:0;pointer-events:none;}
+#hivelab-startup .startup-status{display:flex;align-items:center;gap:9px;margin:0;padding:8px 12px;border-radius:20px;background:var(--startup-chip);color:var(--startup-chip-ink);font-size:12px;}
+#hivelab-startup .startup-dot{width:6px;height:6px;background:#3b7d68;border-radius:50%;animation:startup-pulse 1.4s ease-in-out infinite;}
+#hivelab-startup .startup-controls{display:flex;gap:8px;}
+#hivelab-startup button{font:inherit;font-size:12px;line-height:1.5;color:var(--startup-chip-ink);background:var(--startup-chip);border:1px solid var(--startup-line);border-radius:18px;padding:8px 14px;cursor:pointer;}
+#hivelab-startup button:hover{background:var(--startup-bg);}
+#hivelab-startup button:focus-visible{outline:2px solid var(--startup-ink);outline-offset:3px;}
+#hivelab-startup button:disabled{opacity:.55;cursor:wait;}
+#hivelab-startup:not([data-mode="video"]) [data-startup-sound]{display:none;}
+
+/* While the wallpaper stands alone the interface is laid out in its final place but transparent and out of reach,
+   so adaptive text can measure it where it will end up, without moving anything. */
+#root.startup-stage :is(.app-shell>.sidebar,.sidebar-edge-controls,.sidebar-resizer,.preview-workspace-bar,.workspace-header-surface,.workspace-search-slot,.workspace-notice-slot,.standee-cast,.standee-empty,.home-setup,.workspace-terminal,.standee-home-footer,.file-preview-panel,.browser-sidebar,.preview-panel-resizer,.attention-bubble){opacity:0;pointer-events:none;}
+/* The entrance starts from outside the page. Each --enter-* runs from 1 (outside) to 0 (home), set every frame by
+   startup-boot.ts. `translate` leaves each element's own transform alone, and unlike opacity or filter it keeps
+   glass sampling what is beneath it. */
+#root{--enter-sidebar:1;--enter-top:1;--enter-cast:1;--enter-foot:1;}
+#root.startup-entering .app-shell>.sidebar{translate:calc((-100% - 16px) * var(--enter-sidebar)) 0;}
+#root.startup-entering :is(.sidebar-edge-controls,.sidebar-resizer){visibility:hidden;}
+#root.startup-entering :is(.preview-workspace-bar,.workspace-header-surface,.workspace-search-slot,.workspace-notice-slot){translate:0 calc((-100% - 16px) * var(--enter-top));}
+#root.startup-entering :is(.standee-cast,.standee-empty,.home-setup,.workspace-terminal){translate:0 calc((100% + 64px) * var(--enter-cast));}
+#root.startup-entering .standee-home-footer{translate:0 calc((100% + 120px) * var(--enter-foot));}
+#root.startup-entering :is(.file-preview-panel,.browser-sidebar,.preview-panel-resizer){translate:calc((100% + 96px) * var(--enter-cast)) 0;}
+#root.startup-entering .attention-bubble{translate:calc((100% + 96px) * var(--enter-foot)) 0;}
+#root.startup-entering .page-background-content{overflow:visible;}
+#root.startup-entering :is(.app-shell>.sidebar,.preview-workspace-bar,.workspace-header-surface,.standee-cast,.standee-home-footer){will-change:translate;}
+/* A preview runs over open settings; those step aside until it ends. */
+body.startup-previewing>:not(#root,#hivelab-startup){visibility:hidden;}
+
+@keyframes startup-pulse{50%{opacity:.3;}}
+#hivelab-startup[data-reduced-motion="true"]{transition:none;}
+#hivelab-startup[data-reduced-motion="true"] .startup-dot{animation:none;}
+@media(max-width:700px){
+  #hivelab-startup .startup-footer{
+    left:16px;
+    right:16px;
+    bottom:16px;
+    flex-wrap:wrap;
+  }
+}

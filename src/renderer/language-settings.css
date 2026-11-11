@@ -1,0 +1,16 @@
+/* Settings → Language. Each choice shows its own name and, under it, how that language calls itself. */
+.language-choice button{flex-direction:column;align-items:center;gap:1px;padding-block:7px;line-height:1.25}
+.language-choice button small{font-size:var(--fs-xs,11px);font-weight:500;color:var(--ink-3,var(--ink-2));transition:color var(--motion-instant) var(--ease-out)}
+.language-choice button.selected small{color:inherit}
+.language-settings .settings-group h3{display:flex;align-items:center;gap:7px}
+.language-settings-error{margin:0;color:var(--danger);font-size:var(--fs-md);line-height:1.6}
+
+/* Language turn (motion guide R8): the whole window cross-fades while the words change,
+   180ms in and 140ms out; the reduced level keeps a 120ms fade, the "off" level skips the
+   transition in script. Nothing moves or scales. */
+:root[data-language-turn]::view-transition-group(root){animation-duration:180ms;animation-timing-function:var(--ease-out)}
+:root[data-language-turn]::view-transition-old(root){animation-duration:140ms;animation-timing-function:var(--ease-out)}
+:root[data-language-turn]::view-transition-new(root){animation-duration:180ms;animation-timing-function:var(--ease-out)}
+:root[data-language-turn][data-motion='reduced']::view-transition-group(root),
+:root[data-language-turn][data-motion='reduced']::view-transition-old(root),
+:root[data-language-turn][data-motion='reduced']::view-transition-new(root){animation-duration:120ms}

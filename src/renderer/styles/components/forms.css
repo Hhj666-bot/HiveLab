@@ -1,0 +1,16 @@
+.field { display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--ink-2); }
+.field small { font-weight: var(--fw-normal); color: var(--ink-3); font-size: var(--fs-sm); }
+.field input, .field textarea, .field select {
+  width: 100%; padding: var(--space-2) var(--space-3); border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface-2);
+  font-weight: var(--fw-normal); font-size: var(--fs-base); color: var(--ink);
+  transition: border-color .15s, background .15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--focus); background: var(--surface); }
+.field :is(input,textarea,select):focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-ring-offset); box-shadow: none; }
+
+/* Palette samples and the native custom-colour well use the same round shape. */
+:root :is(.swatch,.chat-color-swatch,.theme-color-presets button>span){border-radius:50%}
+html:root :is(.swatches,.chat-appearance-controls,.theme-color-presets) input[type=color]{width:28px;height:28px;min-width:28px;padding:2px;border-radius:50%;overflow:hidden}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}

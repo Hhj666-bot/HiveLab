@@ -1,0 +1,24 @@
+/* --adaptive-ink stays unregistered because other sheets fall back when it is unset; these four carry the colour. */
+@property --adaptive-tone-ink{syntax:'<color>';inherits:true;initial-value:#101114}
+@property --adaptive-tone-accent{syntax:'<color>';inherits:true;initial-value:#713500}
+@property --adaptive-halo-near{syntax:'<color>';inherits:true;initial-value:transparent}
+@property --adaptive-halo-far{syntax:'<color>';inherits:true;initial-value:transparent}
+:root[data-adaptive-text=true] [data-adaptive-region]{text-shadow:var(--adaptive-halo)}
+:root[data-adaptive-text=true] [data-adaptive-region] :is(.md-link,.md-file-link){color:var(--adaptive-accent)}
+:root[data-adaptive-text=true] [data-adaptive-region] :is(.syntax-code,.syntax-code *,pre,pre *){text-shadow:none}
+:root[data-adaptive-text=true] [data-adaptive-region] textarea{caret-color:var(--adaptive-ink)}
+:root[data-adaptive-text=true] [data-adaptive-group],
+:root[data-adaptive-text=true] [data-adaptive-group] :where(*):not(:where(.syntax-code,.syntax-code *,pre,pre *,.word-layout-preview,.word-layout-preview *,.docx-wrapper,.docx-wrapper *,.panel-image-preview,.panel-image-preview *,.terminal-screen,.terminal-screen *,.room-icon,.room-icon *,.status-dot,.unread-dot,.avatar,.avatar *,.user-avatar,.user-avatar *)){color:var(--adaptive-ink)!important;text-shadow:var(--adaptive-halo)}
+:root[data-adaptive-text=true] [data-adaptive-group] :where(input,textarea)::placeholder{color:var(--adaptive-ink)!important;opacity:.85}
+:root[data-adaptive-text=true] [data-adaptive-group] select::picker-icon{color:var(--adaptive-ink)}
+:root[data-adaptive-text=true] select[data-adaptive-group]::picker-icon{color:var(--adaptive-ink)}
+/* Restore foreground colours in one frame, including inherited SVG strokes. */
+:root[data-adaptive-text=true] [data-adaptive-group],:root[data-adaptive-text=true] [data-adaptive-group] *{transition-property:background-color,background-image,border-color,box-shadow,transform,opacity!important}
+:root[data-adaptive-text=true] [data-adaptive-group][data-adaptive-tone=dark]{--adaptive-picker-surface:#f3f5f7}
+:root[data-adaptive-text=true] [data-adaptive-group][data-adaptive-tone=light]{--adaptive-picker-surface:#20242b}
+:root[data-adaptive-text=true] [data-adaptive-group] select::picker(select){background:var(--adaptive-picker-surface);color:var(--adaptive-ink)}
+:root[data-adaptive-text=true] [data-adaptive-group] select :is(option,optgroup){background:transparent;color:var(--adaptive-ink)}
+:root[data-adaptive-text=true] [data-adaptive-group] select option:is(:hover,:focus,:checked){background:color-mix(in srgb,var(--adaptive-ink) 12%,var(--adaptive-picker-surface));color:var(--adaptive-ink)}
+:root[data-adaptive-text=true]:not([data-liquid-glass=true]) [data-adaptive-group] :is(.explorer-root,.topic-picker select){background:var(--adaptive-picker-surface)}
+:root[data-adaptive-text=true][data-liquid-glass=true] [data-adaptive-group] select::picker(select){background:var(--navigation-menu-background);backdrop-filter:var(--navigation-filter)}
+:root[data-adaptive-text=true][data-liquid-glass=true] [data-adaptive-group] select option:is(:hover,:focus,:checked){background:color-mix(in srgb,var(--adaptive-ink) 12%,transparent)}

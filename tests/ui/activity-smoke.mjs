@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {mkdir} from 'node:fs/promises';
+import {chromium,expect} from '@playwright/test';
+import {createServer} from '../../scripts/ui-test-server.mjs';
+
+const server=await createServer({server:{host:'127.0.0.1',port:0},logLevel:'error'});await server.listen();
+const browser=await chromium.launch({channel:'msedge',headless:true});
+try{
+  const page=await browser.newPage({viewport:{width:1180,height:940}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.goto(server.resolvedUrls.local[0]+'tests/ui/activity-fixture.html');
+  const inline=page.locator('.run-activity'),log=inline.getByRole('log',{name:'思考与操作记录'});
+  await expect(page.getByText('执行端已接收补充 · 采用情况请核对回复',{exact:true})).toBeVisible();await expect(page.locator('.room-live-work')).toContainText('正在执行');
+  await inline.locator(':scope > summary').click();await expect(inline).toHaveAttribute('open','');await expect(log).toContainText('先检查现有配置，再运行测试。');await expect(log).toContainText('npm test');
+  await inline.getByRole('button',{name:'加载更早的活动'}).click();await expect(log).toContainText('较早：任务已接收');await expect(inline.getByRole('button',{name:'加载更早的活动'})).toHaveCount(0);
+  const completion={id:'completion',kind:'tool',text:'测试结束',sequence:4,data:{id:'cmd',type:'commandExecution',status:'completed',hivelabPhase:'completed',aggregatedOutput:'全部测试通过',exitCode:0},runId:'astra-run',sessionId:'astra-session',provider:'codex',at:'2026-10-18T03:01:00.000Z',fidelity:'native'};
+  await page.evaluate(event=>window.emitActivity(event),completion);await expect(log.locator('.activity-tool')).toHaveCount(1);await expect(log).toContainText('已完成');
+  await log.locator('.activity-tool > summary').click();await expect(log).toContainText('全部测试通过');
+  await expect(page.locator('.room-meta .run-elapsed')).toContainText('已用');
+  await page.evaluate(()=>window.finishAstra());await expect(page.locator('.room-meta .run-elapsed')).toHaveText('本轮耗时 5 分 0 秒');await expect(page.getByText('测试任务已完成。',{exact:true})).toBeVisible();await expect(log).toContainText('先检查现有配置');
+  await inline.locator(':scope > summary').click();await expect(inline.getByRole('log')).toHaveCount(0);await inline.locator(':scope > summary').click();await expect(log).toContainText('全部测试通过');
+  await expect(page.getByText('进度说明',{exact:true})).toBeVisible();await expect(page.locator('.room-line:not(.mine) .room-bubble')).not.toContainText('正在核对实际配置。');
+  await page.getByRole('button',{name:'成员活动：思考与操作'}).click();const dialog=page.getByRole('dialog'),member=dialog.getByRole('combobox',{name:'活动成员'}),dialogLog=dialog.getByRole('log');
+  await expect.poll(async()=>(await dialog.boundingBox()).width).toBeGreaterThan(900);
+  await member.selectOption('sol');await expect(dialogLog).toContainText('Sol 的独立任务记录。');await expect(dialogLog).not.toContainText('先检查现有配置');
+  await dialogLog.locator('.activity-tool > summary').click();await expect(dialogLog).toContainText('README.md');await expect(dialogLog).toContainText('Sol 文件内容');
+  await member.selectOption('deepseek');await dialog.getByRole('button',{name:'思考',exact:true}).click();await expect(dialogLog).toContainText('执行端尚未返回思考摘要');
+  await dialog.getByRole('button',{name:'操作',exact:true}).click();await expect(dialogLog).toContainText('DeepSeek 操作记录');
+  await page.evaluate(()=>window.holdRun('sol-run'));await member.selectOption('sol');await expect(dialogLog).toContainText('正在读取活动记录');await member.selectOption('deepseek');await expect(dialogLog).toContainText('DeepSeek 操作记录');
+  await page.evaluate(()=>window.releaseRun());await expect(dialogLog).not.toContainText('Sol 的独立任务记录。');
+  await page.evaluate(()=>window.failRun('sol-run'));await member.selectOption('sol');await expect(dialog.getByRole('alert')).toContainText('模拟读取失败');await dialog.getByRole('button',{name:'重新读取'}).click();await expect(dialogLog).toContainText('Sol 的独立任务记录。');
+  await dialog.getByRole('button',{name:'全部',exact:true}).click();await member.selectOption('astra');await expect(dialogLog).toContainText('先检查现有配置');
+  const bad={...completion,id:'bad',sequence:5,data:{toolCallId:'bad',title:'示例失败操作',status:'failed',rawInput:{command:'测试命令'},rawOutput:'模拟：权限不足'}};
+  await page.evaluate(event=>window.emitActivity(event),bad);await expect(dialogLog).toContainText('失败或已中止');await expect(dialogLog).toContainText('模拟：权限不足');
+  const diagnostics=dialog.locator('.runtime-diagnostics');await diagnostics.locator(':scope > summary').click();await expect(diagnostics).toContainText('原生已确认 · astra-run');
+  const methods=await page.evaluate(()=>window.testCalls.map(call=>call.method));assert.ok(methods.includes('run.activity'));assert.ok(methods.includes('run.diagnostics'));assert.ok(!methods.some(method=>['session.send','room.send','run.retry'].includes(method)));
+  assert.deepEqual(errors,[]);const folder=path.resolve('tests/ui/results');await mkdir(folder,{recursive:true});await page.screenshot({path:path.join(folder,'member-activity.png')});
+  await page.setViewportSize({width:480,height:850});const box=await dialog.boundingBox();assert.ok(box.x>=0&&box.x+box.width<=480,'activity dialog fits a narrow window');
+  console.log('PASS: inline room activity; live command completion; history pagination/reopen; finished snapshot pruning; Astra/Sol isolation; DSH empty thinking; stale request fencing; read failure/retry; tool failure; no model requests');
+}finally{await browser.close();await server.close();}

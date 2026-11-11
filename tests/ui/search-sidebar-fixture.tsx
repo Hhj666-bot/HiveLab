@@ -1,0 +1,54 @@
+import React,{useCallback,useLayoutEffect,useState} from 'react';
+import {Terminal} from 'lucide-react';
+import {createRoot} from 'react-dom/client';
+import {ConversationScope,ConversationSearch} from '../../src/renderer/conversation-search';
+import {FilePreviewWorkspace} from '../../src/renderer/file-preview-panel';
+import {FilePreviewProvider,useFilePreview} from '../../src/renderer/preview-context';
+import {SidebarLayout} from '../../src/renderer/sidebar-layout';
+import {RoomView} from '../../src/renderer/room';
+import {WorkspaceBackground} from '../../src/renderer/home-background';
+import {LiquidGlassAppearance} from '../../src/renderer/liquid-glass';
+import {AdaptiveTextAppearance,useAdaptiveTextPage} from '../../src/renderer/adaptive-text';
+import {useAppearancePreferences} from '../../src/renderer/appearance-preferences';
+import {makeTeam,TeamProvider} from '../../src/renderer/members';
+import {DEFAULT_PROFILE,DEFAULT_SETTINGS} from '../../src/shared/defaults';
+import {defaultBackground} from '../../src/shared/background';
+import type {Snapshot} from '../../src/shared/types';
+import type {ConversationFocus,ConversationTarget,ConversationMatch} from '../../src/shared/conversation-search';
+import '../../src/renderer/styles.css';
+import '../../src/renderer/team.css';
+
+const members=[{id:'sol',name:'Sol',executor:'codex',color:'#579879',motto:''}] as any;
+const thread={id:'topic',roomId:'global',title:'搜索与玻璃分栏',createdAt:'2026-10-27T00:00:00Z',summary:{text:'## 压缩内容\n\n保留任务目标、结论和下一步。',by:'sol',byName:'Sol',at:'2026-10-29T00:00:00Z',count:26}};
+const messages=[{id:'user',threadId:'topic',author:'user',text:'检查 field 的高亮',at:thread.createdAt},{id:'answer',threadId:'topic',author:'sol',text:'## Field 搜索\n\n匹配 field 与 **field**，保留排版。\n\n```ts\nconst field = "field";\n```',runId:'run',status:'done',at:'2026-10-27T00:01:00Z'}] as any;
+const events=[{id:'tool',kind:'tool',text:'读取文件',sequence:1,data:{toolCallId:'read',title:'读取文件',status:'completed',rawInput:{path:'field.ts'},rawOutput:'field result'},runId:'run',sessionId:'session',provider:'codex',at:thread.createdAt,fidelity:'native'}] as any;
+const room={currentThreadId:'topic',threads:[thread],messages,hasMore:false,state:{active:false,mode:'chat'}};
+const snapshot={dataDirectory:'isolated-search',members,profile:DEFAULT_PROFILE,settings:DEFAULT_SETTINGS,backendReady:true,room,projects:[],sessions:[{id:'session',memberId:'sol',provider:'codex',roomId:'global'}],runs:[{id:'run',provider:'codex',sessionId:'session',status:'ended',createdAt:thread.createdAt,delivery:'confirmed'}],events,approvals:[],providers:[{id:'codex',available:true,auth:'subscription',capabilities:{steer:true}}]} as unknown as Snapshot;
+const invoke:any=async(method:string,p:any)=>{
+ if(method==='conversation.search')((window as any).searchScopeCalls??=[]).push(p.scope);
+ if(method==='background.get')return defaultBackground(p.page);
+ if(method==='composer.draft.get')return null;
+ if(method==='conversation.search')return {matches:[...messages].reverse().filter(m=>m.text.toLowerCase().includes(p.query.toLowerCase())).map(m=>({roomId:'global',threadId:'topic',messageId:m.id,roomTitle:'茶歇室',title:thread.title,author:m.author==='user'?'你':'Sol',at:m.at,excerpt:m.text})),hasMore:false,nextOffset:2};
+ if(method==='run.activity')return {events,hasMore:false};
+ if(method==='file.outputs')return [];
+ if(method==='file.preview')return {name:'已打开的文件.md',kind:'markdown',content:'# 文件预览保持打开\n\n搜索不会替换这个标签。'};
+ return {saved:true};
+};
+(window as any).hivelab={invoke,onEvent:()=>()=>{}};
+function Fixture(){
+ const [compressing,setCompressing]=useState(false);(window as any).fixtureCompression=setCompressing;
+ const fixtureSnapshot={...snapshot,room:{...snapshot.room,state:{...snapshot.room.state,compressing:compressing?'sol':undefined}}};
+ (window as any).fixtureMenuTransparency=useAppearancePreferences().setMenuTransparency;
+ const [home,setHome]=useState(false),[current,setCurrent]=useState<ConversationTarget>(),[focus,setFocus]=useState<ConversationFocus>(),preview=useFilePreview()!,appearance=useAppearancePreferences();
+ const [pageId,setPageId]=useState('lounge'),[theme,setTheme]=useState('dark');
+ useLayoutEffect(()=>{document.documentElement.dataset.theme=theme;},[theme]);
+ useAdaptiveTextPage(home?'home':pageId,theme,pageId.startsWith('desk:')?(pageId==='desk:sol'?'#579879':'#856fbb'):undefined);
+ (window as any).fixtureFocusPage=(pageId:string,theme:string)=>{setPageId(pageId);setTheme(theme);};
+ (window as any).setFixtureGlass=appearance.setLiquidGlass;
+ (window as any).setFixtureAdaptive=appearance.setAdaptiveText;
+ const cancel=useCallback(()=>setFocus(undefined),[]);
+ (window as any).previewTestFile=()=>preview.open({source:'workspace',id:'session',path:'test.md',name:'已打开的文件.md'},invoke);
+ const open=async(match:ConversationMatch,query:string)=>setFocus({...match,query,nonce:Date.now()});
+ return <TeamProvider value={makeTeam(members)}><LiquidGlassAppearance/><AdaptiveTextAppearance/><SidebarLayout wallpaper={<div style={{position:'absolute',inset:0,zIndex:-2,background:'linear-gradient(135deg,#114536,#6c99c1 45%,#c79577)'}}/>}><aside className="sidebar"><button className="brand" aria-label="回到主页" onClick={()=>setHome(true)}>H</button><button className="room-entry" aria-label="进入聊天" onClick={()=>setHome(false)}>聊</button></aside><div className="workspace"><ConversationScope.Provider value={{setCurrent,focus}}><FilePreviewWorkspace headerTransparency={60} search={!home?<ConversationSearch current={current} invoke={invoke} onOpen={open} onCancel={cancel}/>:undefined} tools={<button type="button" className="button quiet small" aria-label="终端" title="终端"><Terminal size={15}/></button>} >{home?<main>主页</main>:<WorkspaceBackground page="lounge" title="茶歇室"><RoomView snapshot={fixtureSnapshot} invoke={invoke}/></WorkspaceBackground>}</FilePreviewWorkspace></ConversationScope.Provider></div></SidebarLayout></TeamProvider>;
+}
+createRoot(document.getElementById('root')!).render(<FilePreviewProvider><Fixture/></FilePreviewProvider>);

@@ -1,0 +1,206 @@
+:root{--navigation-tint:var(--bg);--navigation-ink:light-dark(#1d1d1f,#fff);--navigation-muted:light-dark(#3a3a3c,#e5e5ea);--navigation-subtle:light-dark(#48484a,#d1d1d6);--navigation-text-halo:0 1px 3px light-dark(rgb(255 255 255 / 75%),rgb(0 0 0 / 85%));--navigation-filter:blur(18px) saturate(1.12)}
+:root{--navigation-gap:8px;--navigation-radius:var(--radius-lg);--navigation-outline:var(--glass-rim,var(--line));--navigation-shadow:var(--shadow-sm)}
+.app-shell[class*="sidebar-"] { --sidebar-column-width:calc(min(var(--sidebar-width,268px),45vw) + 24px);position:relative; }
+.app-shell[class*="sidebar-"] { isolation:isolate;background:var(--bg); }
+.app-shell>.sidebar { background:color-mix(in srgb,var(--navigation-tint,var(--bg)) var(--sidebar-opacity,100%),transparent);backdrop-filter:var(--navigation-filter);border-right:0;box-shadow:none; }
+.app-shell>.sidebar,.preview-workspace-bar,.room-top{--ink:var(--navigation-ink);--ink-2:var(--navigation-muted);--ink-3:var(--navigation-subtle);color:var(--navigation-ink);text-shadow:var(--navigation-text-halo)}
+.sidebar .roster-text small,.room-title p,.room-topic-bar{font-size:var(--fs-md);color:var(--ink-2)}
+.app-shell.sidebar-expanded { grid-template-columns:var(--sidebar-column-width) minmax(0,1fr); }
+.app-shell>.sidebar { min-width:0; padding-top:8px; --action-card-hover:transparent; }
+.app-shell:not(.sidebar-hidden)>.sidebar{margin:var(--navigation-gap) 0 var(--navigation-gap) var(--navigation-gap);border:1px solid var(--navigation-outline);border-radius:var(--navigation-radius);box-shadow:var(--navigation-shadow)}
+.app-shell.sidebar-icons>.sidebar .brand{padding:6px 2px}
+.app-shell.sidebar-expanded>.sidebar{padding-top:8px;padding-bottom:8px}
+.sidebar-expanded .brand{gap:9px;margin:0 10px 2px;padding:4px 8px 6px}
+.sidebar-expanded .sidebar-section-label{height:28px;margin-top:6px}
+.sidebar-expanded .sidebar-work-pane>.sidebar-section-label:first-child{margin-top:0}
+.sidebar-expanded .roster-row{gap:8px;padding:4px 4px 4px 8px}
+.sidebar-expanded .place-list{margin-top:6px;padding-top:6px}
+.sidebar-expanded .place-list .room-entry,.sidebar-expanded .place-list .attention-entry{padding-block:6px}
+.sidebar-expanded .sidebar-footer{gap:2px;padding-top:6px}
+.sidebar-expanded .sidebar-settings{padding-block:6px}
+.sidebar-edge-controls{position:absolute;top:50%;left:calc(var(--sidebar-column-width) - 14px);transform:translateY(-50%);z-index:calc(var(--layer-interface) + 1)}
+.sidebar-edge-toggle{display:grid;place-items:center;width:14px;height:48px;padding:0;border:0;border-radius:var(--r-sm) 0 0 8px;color:var(--ink-2);background:color-mix(in srgb,var(--surface) 36%,transparent);cursor:pointer;backdrop-filter:blur(12px)}
+.sidebar-edge-toggle:hover{background:color-mix(in srgb,var(--ink) 10%,transparent);color:var(--ink)}
+.sidebar-edge-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.sidebar-edge-toggle svg{transition:rotate var(--motion-fast) var(--ease-out)}
+.sidebar-edge-toggle[aria-expanded=true] svg{rotate:180deg}
+.sidebar-resizer { position:absolute;left:calc(var(--sidebar-column-width) - 4px);top:0;bottom:0;width:8px;z-index:calc(var(--layer-interface) - 1);cursor:col-resize;touch-action:none; }
+.sidebar-resizer:hover,.sidebar-resizer:focus-visible { background:color-mix(in srgb,var(--focus) 35%,transparent); }
+.app-shell.sidebar-icons { --sidebar-column-width:84px;grid-template-columns:var(--sidebar-column-width) minmax(0,1fr); }
+.sidebar-icons .sidebar { padding-inline:4px; }
+.sidebar-icons .brand { padding:8px;justify-content:center; }
+.sidebar-icons .brand-text,.sidebar-icons .roster-text,.sidebar-icons .roster-actions,.sidebar-icons .sidebar-section-label,.sidebar-icons .project-list,.sidebar-icons .sidebar-empty,.sidebar-icons .backend-state>span:not(.status-dot),.sidebar-icons .sidebar-settings span,.sidebar-icons .room-entry>span,.sidebar-icons .attention-entry>span { display:none; }
+.sidebar-icons .roster-row { justify-content:center;padding:8px; }
+.sidebar-icons .roster-with-desk { display:block; }
+.sidebar-icons .room-entry,.sidebar-icons .sidebar-settings { justify-content:center;padding:12px 8px; }
+.sidebar-icons .sidebar-footer { margin-inline:2px; }
+.sidebar-icons .sidebar-scroll { padding-inline:2px;scrollbar-gutter:auto; }
+.sidebar-icons .brand { margin-inline:0; }
+.sidebar-icons .sidebar-edge-controls{left:70px}
+.sidebar-hidden .sidebar-edge-controls{left:0}
+.sidebar-hidden .sidebar-edge-toggle{border-radius:0 8px 8px 0}
+.app-shell.sidebar-hidden { grid-template-columns:0 minmax(0,1fr); }
+.sidebar-hidden>.sidebar { visibility:hidden;padding:0;border:0; }
+.sidebar-hidden>.workspace { min-width:0; }
+.sidebar-hidden .standee-home-header { padding-left:30px; }
+.sidebar-hidden .page-background-toolbar { min-height:38px; }
+@media(max-width:1080px){.app-shell:not(.sidebar-icons):not(.sidebar-hidden){grid-template-columns:var(--sidebar-column-width) minmax(0,1fr);}}
+
+.app-shell.sidebar-icons .place-list .room-entry,.app-shell.sidebar-icons .place-list .attention-entry { justify-content:center;gap:0;padding:12px 8px;min-height:44px; }
+.app-shell.sidebar-icons .place-list .room-entry>span,.app-shell.sidebar-icons .place-list .attention-entry>span { display:none; }
+:root .app-shell[class*="sidebar-"] .sidebar-edge-controls .sidebar-edge-toggle{background:transparent;border:0;box-shadow:none;backdrop-filter:none;opacity:.32;transition:opacity .15s,background .15s}
+:root .app-shell[class*="sidebar-"] .sidebar-edge-controls .sidebar-edge-toggle:is(:hover,:focus-visible){background:color-mix(in srgb,var(--ink) 7%,transparent);box-shadow:none;opacity:.9}
+
+/* Fixed section headings; team and project contents scroll independently. */
+/* Both sidebar states share one vertical rhythm, so switching only moves things sideways:
+   every row keeps its height, and a collapsed 44px square sits centred in its row. */
+/* Rows stand 52px apart, folded or not. Plates keep clear of each other, and what glows reaches at most half a gap past its plate. */
+.app-shell>.sidebar{--sidebar-row-gap:6px;--sidebar-card-height:46px;--sidebar-icon-size:44px;--sidebar-tool-height:36px;--sidebar-page-gap:32px;gap:8px;overflow:clip}
+.app-shell>.sidebar .brand{box-sizing:border-box;min-height:var(--sidebar-card-height);padding-block:0}
+.app-shell>.sidebar :is(.place-list>.room-entry,.sidebar-settings){box-sizing:border-box;flex:none;height:var(--sidebar-tool-height);min-height:var(--sidebar-tool-height)}
+/* Workbench and files share one track: the chosen side takes 3/4, and a bubble carries the choice across. */
+.app-shell>.sidebar .sidebar-workspace-tabs{--tab-inset:3px;position:relative;isolation:isolate;display:grid;grid-template-columns:3fr 1fr;flex:none;box-sizing:border-box;width:100%;height:var(--sidebar-icon-size);margin:0;padding:var(--tab-inset);border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 6%,transparent);transition:grid-template-columns .32s var(--ease)}
+.app-shell>.sidebar .sidebar-workspace-tabs[data-tab=files]{grid-template-columns:1fr 3fr}
+.app-shell>.sidebar .sidebar-workspace-tabs button{display:flex;align-items:center;justify-content:center;min-width:0;height:100%;padding:0;overflow:hidden;border-radius:var(--r-pill);color:var(--ink-3);font-size:var(--fs-sm);transition:color .22s var(--ease)}
+.app-shell>.sidebar .sidebar-workspace-tabs button[aria-pressed=true]{color:var(--ink)}
+.sidebar-workspace-tabs svg{flex:none}
+.sidebar-workspace-tabs button>span{max-width:5em;margin-left:8px;overflow:hidden;white-space:nowrap;transition:max-width .32s var(--ease),margin-left .32s var(--ease),opacity .22s var(--ease)}
+.sidebar-workspace-tabs button[aria-pressed=false]>span{max-width:0;margin-left:0;opacity:0}
+/* Adaptive text narrows every transition in its groups; this track still has to move as one. */
+:root[data-motion='full'][data-adaptive-text=true] .sidebar-workspace-tabs[data-adaptive-group]{transition-property:grid-template-columns!important}
+:root[data-motion='full'][data-adaptive-text=true] .sidebar-workspace-tabs[data-adaptive-group] button>span{transition-property:max-width,margin-left,opacity!important}
+.sidebar-tab-bubble{position:absolute;z-index:-1;top:var(--tab-inset);bottom:var(--tab-inset);left:var(--tab-inset);width:calc((100% - var(--tab-inset) * 2) * .75);border-radius:var(--r-pill);background:linear-gradient(135deg,rgb(255 255 255 / 14%),transparent 70%),color-mix(in srgb,var(--focus) 18%,transparent);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 14%),inset 0 1px 0 rgb(255 255 255 / 22%),0 3px 10px -6px rgb(0 0 0 / 35%);pointer-events:none;will-change:transform;transition:background-color var(--motion-page) var(--ease-drawer)}
+/* The open desk carries the same bubble, in its member's colour; use-roster-bubble.ts moves it. */
+.app-shell>.sidebar .team-roster{position:relative;isolation:isolate}
+.roster-bubble{position:absolute;z-index:-1;top:0;left:0;right:0;height:var(--sidebar-card-height);transform-origin:50% 0;border-radius:var(--r-pill);background:linear-gradient(135deg,rgb(255 255 255 / 14%),transparent 70%),color-mix(in srgb,var(--m,var(--focus)) 18%,transparent);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 14%),inset 0 1px 0 rgb(255 255 255 / 22%),0 1px 5px -3px rgb(0 0 0 / 35%);pointer-events:none;will-change:transform;transition:background-color var(--motion-page) var(--ease-drawer),opacity var(--motion-fast) ease}
+.roster-bubble[data-shown=false]{opacity:0}
+/* The pointer's bubble: the same shape, fainter. One serves every control here in place of a hover plate; use-sidebar-pointer.ts moves it. */
+.sidebar{position:relative;isolation:isolate}
+.sidebar-pointer{position:absolute;z-index:-1;top:0;left:0;border-radius:var(--r-pill);background-image:linear-gradient(135deg,rgb(255 255 255 / 8%),transparent 70%);background-color:color-mix(in srgb,var(--m,currentColor) 9%,transparent);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 8%);pointer-events:none;will-change:transform;transition:background-color var(--motion-page) var(--ease-drawer),opacity var(--motion-fast) ease}
+.sidebar-pointer:not([data-shown=true]),:root[data-sidebar-moving] .sidebar-pointer{opacity:0}
+.app-shell.sidebar-icons>.sidebar .roster-bubble{left:50%;right:auto;width:var(--sidebar-icon-size);margin-left:calc(var(--sidebar-icon-size) / -2)}
+.app-shell>.sidebar :is(.roster-with-desk,.project-list .list-row,.room-entry).selected::before{display:none}
+/* The open project and the open room carry the same bubble, in the theme's colour. */
+.app-shell>.sidebar :is(.project-list,.place-list){position:relative;isolation:isolate}
+.app-shell>.sidebar .theme-bubble{--m:var(--focus)}
+.app-shell>.sidebar .backend-state{height:20px}
+/* Springing between folded and expanded (sidebar-spring.ts). The main page keeps the wider layout throughout,
+   so it is never laid out again; the sidebar floats above it, with its content at full width and cut off by its edge. */
+:root[data-sidebar-moving] .app-shell.sidebar-expanded{grid-template-columns:84px minmax(0,1fr);overflow:clip}
+:root[data-sidebar-moving] .workspace{overflow:clip}
+:root[data-sidebar-moving] .app-shell>.sidebar{position:relative;z-index:calc(var(--layer-interface) + 1);justify-self:start;box-sizing:border-box;min-width:0}
+/* Specific enough to outrank the expanded layout's full-width rows, which would otherwise narrow with the sidebar and
+   cut the bubbles they hold. */
+:root[data-sidebar-moving] .app-shell.sidebar-expanded>.sidebar>*{flex-shrink:0;width:var(--sidebar-content)}
+:root[data-sidebar-moving] .app-shell.sidebar-expanded>.sidebar .brand{width:calc(var(--sidebar-content) + 24px)}
+:root[data-sidebar-moving] .sidebar-resizer{opacity:0;pointer-events:none}
+/* Folded plates stand a little left of the expanded content, so on the way the lists reach that far without moving
+   what they hold, and a plate is never cut by its list. */
+:root[data-sidebar-moving] .app-shell>.sidebar .sidebar-section-scroll{margin-left:-6px;padding-left:6px;width:calc(100% + 12px)}
+:root[data-sidebar-moving] .sidebar-project-section{flex:none;max-height:none;height:calc(var(--fold-height) + (var(--open-height) - var(--fold-height)) * var(--sidebar-open))}
+:root[data-sidebar-moving] .sidebar [data-sidebar-fade]{opacity:var(--sidebar-text)}
+:root[data-sidebar-moving] .sidebar-page{transition:none}
+:root[data-sidebar-moving] .sidebar [data-sidebar-icon]{translate:calc(var(--fold-x) * (1 - var(--sidebar-open))) calc(var(--fold-y) * (1 - var(--sidebar-open)));scale:calc(1 + (var(--fold-scale) - 1) * (1 - var(--sidebar-open)))}
+:root[data-sidebar-moving] .sidebar-section-label::before{content:'';position:absolute;left:7px;width:54px;top:50%;height:1px;background:color-mix(in srgb,var(--focus) 28%,transparent);opacity:calc(1 - var(--sidebar-text))}
+:root[data-sidebar-moving] .sidebar-section-label{position:relative}
+/* The two bubbles grow from their folded shape. */
+:root[data-sidebar-moving] .app-shell>.sidebar .sidebar-workspace-tabs{margin-left:calc(var(--fold-left,0px) * (1 - var(--sidebar-open)));width:calc(var(--fold-width,100%) + (var(--sidebar-content) - var(--fold-width,100%)) * var(--sidebar-open));grid-template-columns:calc(100% - 25% * var(--sidebar-open)) 1fr}
+:root[data-sidebar-moving] .app-shell>.sidebar .sidebar-workspace-tabs[data-tab=files]{grid-template-columns:1fr calc(100% - 25% * var(--sidebar-open))}
+/* The track follows the spring frame by frame, with no transition lagging behind. Its label gives way with the text,
+   so the icon stays centred in a button that is already travelling, and needs no travel of its own. */
+:root[data-sidebar-moving] .app-shell.sidebar-expanded>.sidebar .sidebar-workspace-tabs[data-tab],:root[data-sidebar-moving] .app-shell.sidebar-expanded>.sidebar .sidebar-workspace-tabs[data-tab] :is(button,button>span){transition:none!important}
+:root[data-sidebar-moving] .app-shell.sidebar-expanded>.sidebar .sidebar-workspace-tabs[data-tab] button[aria-pressed=true]>span{max-width:calc(5em * var(--sidebar-text));margin-left:calc(8px * var(--sidebar-text))}
+:root[data-sidebar-moving] .app-shell>.sidebar .sidebar-tab-bubble{transform:none!important;width:calc((100% - var(--tab-inset) * 2) * (1 - .25 * var(--sidebar-open)));top:calc(var(--tab-inset) - 22px * var(--sidebar-squash));bottom:calc(var(--tab-inset) - 22px * var(--sidebar-squash))}
+:root[data-sidebar-moving] .app-shell>.sidebar .sidebar-workspace-tabs[data-tab=files] .sidebar-tab-bubble{left:calc(var(--tab-inset) + (100% - var(--tab-inset) * 2) * .25 * var(--sidebar-open))}
+:root[data-sidebar-moving] .app-shell>.sidebar .roster-bubble{left:calc(var(--fold-left,0px) * (1 - var(--sidebar-open)));right:auto;width:calc(var(--fold-width,100%) + (100% - var(--fold-width,100%)) * var(--sidebar-open));--bubble-height:calc(var(--sidebar-icon-size) + (var(--sidebar-card-height) - var(--sidebar-icon-size)) * var(--sidebar-open));height:calc(var(--bubble-height) * (1 + var(--sidebar-squash)))!important;margin-top:calc((var(--sidebar-card-height) - var(--bubble-height) * (1 + var(--sidebar-squash))) / 2)}
+/* Rooms keep one height folded or not. */
+:root[data-sidebar-moving] .app-shell>.sidebar .place-list>.roster-bubble{--bubble-height:var(--sidebar-tool-height);margin-top:calc(var(--bubble-height) * var(--sidebar-squash) / -2)}
+.app-shell>.sidebar .sidebar-scroll{display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);flex:1;min-height:0;width:100%;margin:0;padding:0;overflow:visible;scrollbar-gutter:auto}
+/* The pages lie side by side and turn in the direction the bubble moves, clipped by the sidebar's edge.
+   A page that has left stays hidden and inert, and keeps its scroll position. */
+.sidebar-page{grid-area:1/1;min-width:0;min-height:0;transition:transform var(--motion-page) var(--ease-drawer),visibility 0s}
+.sidebar-page:not(.current){visibility:hidden;transition-delay:0s,var(--motion-page)}
+.sidebar-work-pane:not(.current){transform:translateX(calc(-100% - var(--sidebar-page-gap)))}
+.sidebar-file-pane:not(.current){transform:translateX(calc(100% + var(--sidebar-page-gap)))}
+/* Simplified motion cross-fades the pages in place, so the old one never just vanishes. */
+:root[data-motion='reduced'] .sidebar-page{transition-property:opacity,visibility!important;transition-duration:var(--motion-base),0s;transition-delay:0s;transition-timing-function:ease}
+:root[data-motion='reduced'] .sidebar-page:not(.current){opacity:0;transform:none;transition-delay:0s,var(--motion-base)}
+.app-shell>.sidebar .sidebar-work-pane{display:flex;flex-direction:column;gap:8px}
+.sidebar-work-lists{display:flex;flex:1 1 0;flex-direction:column;gap:12px;min-height:0}
+.sidebar-team-section,.sidebar-project-section{display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0}
+.sidebar-team-section{flex:0 1 auto}
+.sidebar-project-section{flex:0 1 auto;max-height:38%}
+.app-shell>.sidebar .sidebar-section-label{flex:none;height:28px;min-height:28px;margin:0;padding:0}
+.app-shell>.sidebar .sidebar-section-scroll{flex:1;min-height:0;width:calc(100% + 6px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;overscroll-behavior:contain}
+.sidebar .sidebar-section-scroll::-webkit-scrollbar{width:6px}.sidebar .sidebar-section-scroll::-webkit-scrollbar-thumb{border-width:1px;background-color:color-mix(in srgb,var(--focus) 55%,transparent)}
+/* Keep the gutter, so entering the sidebar reveals the thumb without moving rows. */
+.sidebar *::-webkit-scrollbar-track,.sidebar *::-webkit-scrollbar-corner{background:transparent}
+.sidebar:not(:hover) *::-webkit-scrollbar-thumb{background-color:transparent}
+.app-shell>.sidebar .sidebar-file-pane{overflow:auto;border-bottom:1px solid color-mix(in srgb,currentColor 10%,transparent)}
+.app-shell>.sidebar :is(.team-roster,.project-list,.place-list){display:flex;flex-direction:column;gap:var(--sidebar-row-gap);margin:0;padding:0;border:0;min-width:0;width:100%}
+.app-shell>.sidebar :is(.place-list,.sidebar-footer){gap:4px}
+.app-shell>.sidebar .sidebar-bottom{display:flex;flex:none;flex-direction:column;gap:4px;width:100%}
+.app-shell.sidebar-expanded>.sidebar{padding:8px 20px}
+.app-shell.sidebar-expanded>.sidebar :is(.sidebar-scroll,.sidebar-footer){margin:0;padding:0;width:100%}
+.app-shell.sidebar-expanded>.sidebar .brand{margin:0 -12px;padding-inline:12px;width:calc(100% + 24px);gap:10px}
+.app-shell.sidebar-expanded>.sidebar .brand-name{max-width:100%;overflow-wrap:anywhere}
+.app-shell.sidebar-expanded>.sidebar :is(.roster-with-desk,.project-tree-row){box-sizing:border-box;flex:none;width:100%;height:var(--sidebar-card-height);min-height:var(--sidebar-card-height);margin:0}
+.app-shell.sidebar-expanded>.sidebar .roster-row{align-self:stretch;height:100%;min-height:0;padding:0 10px;gap:8px}
+.app-shell.sidebar-expanded>.sidebar .place-list>.room-entry{width:100%;margin:0;padding:0 10px;gap:8px}
+.app-shell.sidebar-expanded>.sidebar .project-tree-spacer{display:none}
+.app-shell.sidebar-expanded>.sidebar .project-tree-row>.list-row-main{justify-content:flex-start;padding-inline:10px;gap:8px;text-align:left}
+.app-shell.sidebar-expanded>.sidebar .sidebar-footer{border:0}
+.app-shell.sidebar-expanded>.sidebar .sidebar-settings{justify-content:flex-start;padding:0 10px;gap:8px;text-align:left}
+.app-shell.sidebar-expanded>.sidebar .backend-state{justify-content:flex-start;padding-inline:10px}
+.app-shell.sidebar-icons>.sidebar{--sidebar-item-gap:8px;align-items:center;padding:8px 14px}
+.app-shell.sidebar-icons>.sidebar .brand{flex:none;margin:0;padding:0;gap:8px}
+.app-shell.sidebar-icons>.sidebar :is(.brand-logo,.room-entry,.attention-entry,.sidebar-settings){display:flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-height:44px;padding:0;gap:0;border-radius:var(--r-sm)}
+.app-shell.sidebar-icons>.sidebar :is(.room-entry,.attention-entry,.sidebar-settings){height:var(--sidebar-tool-height);min-height:var(--sidebar-tool-height)}
+.app-shell.sidebar-icons>.sidebar :is(.roster-with-desk,.project-tree-row){margin-block:calc((var(--sidebar-card-height) - var(--sidebar-icon-size)) / 2)}
+/* Collapsed, the track holds only the current page. */
+.app-shell.sidebar-icons>.sidebar .sidebar-workspace-tabs,.app-shell.sidebar-icons>.sidebar .sidebar-workspace-tabs[data-tab=files]{grid-template-columns:1fr;width:var(--sidebar-icon-size)}
+.app-shell.sidebar-icons>.sidebar .sidebar-workspace-tabs button[aria-pressed=false]{display:none}
+.app-shell.sidebar-icons>.sidebar .sidebar-workspace-tabs button>span{display:none}
+.app-shell.sidebar-icons>.sidebar .sidebar-tab-bubble{right:var(--tab-inset);width:auto;transform:none!important}
+.app-shell.sidebar-icons>.sidebar .backend-state{justify-content:center;gap:0;padding:0}
+.app-shell.sidebar-icons>.sidebar .brand-image{width:34px;height:34px}
+.app-shell.sidebar-icons>.sidebar :is(.sidebar-bottom,.team-roster,.project-list,.place-list,.sidebar-footer){display:flex;flex-direction:column;align-items:center;margin:0;width:100%}
+.app-shell.sidebar-icons>.sidebar .sidebar-footer{padding:0;border:0}
+/* The rooms turn with the workbench page and carry the divider; the footer stays where it is. */
+.app-shell>.sidebar .sidebar-work-pane>.place-list{flex:none;margin:0 0 -4px;padding-top:8px;border-top:1px solid color-mix(in srgb,currentColor 10%,transparent)}
+.app-shell.sidebar-icons>.sidebar :is(.roster-with-desk,.project-tree-row){width:44px;height:44px;min-height:44px;flex:none}
+.app-shell.sidebar-icons>.sidebar .roster-row{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;padding:0;gap:0}
+.app-shell.sidebar-icons>.sidebar .project-tree-row{padding-inline:0!important}
+.app-shell.sidebar-icons>.sidebar .project-list{display:flex}
+.app-shell.sidebar-icons>.sidebar .project-tree-row>.list-row-main{display:grid;place-items:center;width:100%;height:100%;padding:0}
+.app-shell.sidebar-icons>.sidebar :is(.project-tree-toggle,.project-tree-spacer,.row-more,.list-row-main>span,.team-header-actions,.sidebar-section-label>.icon-button){display:none}
+.app-shell.sidebar-icons>.sidebar .sidebar-section-label{position:relative;display:block}
+.app-shell.sidebar-icons>.sidebar .sidebar-section-label>*{display:none}
+.app-shell.sidebar-icons>.sidebar .sidebar-section-label::before{content:'';position:absolute;left:7px;right:7px;top:50%;height:1px;background:color-mix(in srgb,var(--focus) 28%,transparent)}
+:root .app-shell>.sidebar :is(button,[role="button"],summary,.roster-with-desk,.project-tree-row,.explorer-root){background:none!important;box-shadow:none!important;backdrop-filter:none!important;border-color:transparent!important}
+/* Every control's plate has the bubble's shape, so pointing, choosing and focus read as one thing. */
+:root .app-shell>.sidebar :is(button,[role="button"],summary,select,.brand,.roster-with-desk,.project-tree-row,.explorer-root):not(.brand *){border-radius:var(--r-pill)}
+/* A row's side actions sit on its bubble and answer on their own. */
+:root .app-shell>.sidebar :is(.roster-with-desk,.project-tree-row) button:not(.action-card-main):not(:disabled):hover{background:color-mix(in srgb,currentColor 8%,transparent)!important}
+/* Logo, name and editable subtitle share the sidebar's glass and one highlight. */
+:root .app-shell>.sidebar .brand{background:transparent;backdrop-filter:none;box-shadow:none}
+:root .app-shell>.sidebar .brand:has(:focus-visible){background:color-mix(in srgb,currentColor 8%,transparent)}
+:root .app-shell>.sidebar .brand :is(button,input){background:transparent!important;backdrop-filter:none!important;box-shadow:none!important}
+/* Adding a project is the list's last row: a plus bubble shaped like the rows above it, folded or not. */
+.app-shell>.sidebar .project-add{display:flex;align-items:center;justify-content:center;gap:0;box-sizing:border-box;flex:none;width:100%;height:var(--sidebar-card-height);margin:var(--sidebar-row-gap) 0 0;padding:0 10px;color:var(--ink-2);font:inherit;text-align:left;cursor:pointer}
+:root .app-shell>.sidebar .project-add{background:color-mix(in srgb,currentColor 6%,transparent)!important}
+.app-shell>.sidebar .project-add>svg{flex:none}
+.app-shell>.sidebar .project-add:disabled{opacity:.5;cursor:default}
+.app-shell.sidebar-icons>.sidebar .project-add{justify-content:center;width:var(--sidebar-icon-size);height:var(--sidebar-icon-size);margin:calc(var(--sidebar-row-gap) + (var(--sidebar-card-height) - var(--sidebar-icon-size)) / 2) auto 0;padding:0;gap:0}
+.app-shell.sidebar-icons>.sidebar .project-add>span{display:none}
+
+/* The add plate follows the same spring as the selected project, instead of
+   keeping its expanded width until the final folded layout arrives. */
+:root[data-sidebar-moving] .app-shell>.sidebar .project-add{
+ --add-height:calc((var(--sidebar-icon-size) + (var(--sidebar-card-height) - var(--sidebar-icon-size)) * var(--sidebar-open,1)) * (1 + var(--sidebar-squash,0)));
+ width:calc(var(--fold-width,var(--sidebar-icon-size)) + (var(--open-width,var(--sidebar-content)) - var(--fold-width,var(--sidebar-icon-size))) * var(--sidebar-open,1));
+ height:var(--add-height);min-height:0;translate:calc(var(--fold-left,0px) * (1 - var(--sidebar-open,1))) 0;
+ margin-top:calc(var(--sidebar-row-gap) + (var(--sidebar-card-height) - var(--add-height)) / 2);
+ margin-bottom:calc((var(--sidebar-card-height) - var(--add-height)) / 2);
+ padding:0;transition:none;
+}

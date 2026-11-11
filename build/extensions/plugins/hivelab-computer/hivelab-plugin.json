@@ -1,0 +1,76 @@
+{
+  "apiVersion": 1,
+  "id": "hivelab-computer",
+  "name": "电脑操作",
+  "description": "通过截图、鼠标和键盘操作主屏幕，保留任务授权及屏幕提示。",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "computer",
+      "description": "操作 Windows 主屏幕。先 screenshot 获得图片和 captureId。其余操作须使用该截图像素坐标和 captureId；每次操作后重新截图。action: screenshot/click/move/drag/type/key/scroll；click 使用 x/y、button(left/right/middle)、count(1/2)，drag 另用 toX/toY，type 使用 text，key 使用 keys 如 Ctrl+L，scroll 使用 amount(-20..20，正数向上)。首次操作可能需要用户批准。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "screenshot",
+              "click",
+              "move",
+              "drag",
+              "type",
+              "key",
+              "scroll"
+            ]
+          },
+          "captureId": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "toX": {
+            "type": "number"
+          },
+          "toY": {
+            "type": "number"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right",
+              "middle"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "keys": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": -20,
+            "maximum": 20
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "features": []
+}

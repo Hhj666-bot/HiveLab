@@ -1,0 +1,15 @@
+{
+  "appId": "local.hivelab.desktop",
+  "productName": "HiveLab 合屋",
+  "publish": null,
+  "directories": { "output": "release" },
+  "asar": false,
+  "electronDist": "node_modules/electron/dist",
+  "npmRebuild": false,
+  "files": ["dist/**/*", "package.json", "package-lock.json", "!node_modules/**/*", "!**/*.map"],
+  "afterPack": "scripts/runtime-dependencies.mjs",
+  "afterSign": "scripts/build-manifest.mjs",
+  "win": { "executableName": "HiveLab", "target": ["nsis", "portable"], "icon": "build/hivelab.ico", "requestedExecutionLevel": "asInvoker", "signAndEditExecutable": true },
+  "nsis": { "artifactName": "HiveLab-Setup-${version}.exe", "oneClick": false, "perMachine": false, "allowElevation": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": "always", "createStartMenuShortcut": true, "shortcutName": "HiveLab 合屋", "deleteAppDataOnUninstall": false, "runAfterFinish": true },
+  "portable": { "artifactName": "HiveLab-${version}-Windows.exe", "requestExecutionLevel": "user" }
+}

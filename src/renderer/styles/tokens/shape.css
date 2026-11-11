@@ -1,0 +1,18 @@
+:root {
+  --r-xs: .3125rem;
+  --r-sm: .5rem;
+  --r-md: .6875rem;
+  --r-lg: 1.125rem;
+  --r-pill: 9999px;
+  --radius-sm: var(--r-sm);
+  --radius: var(--r-lg);
+  --radius-lg: var(--r-lg);
+  --shadow-hover: 0 1px 4px rgb(0 0 0 / 8%);
+  --shadow-float: 0 2px 8px rgb(0 0 0 / 12%);
+  --shadow-product: 0 3px 5px rgb(0 0 0 / 22%), 0 10px 30px rgb(0 0 0 / 12%);
+  --shadow-sm: var(--shadow-hover);
+  --shadow: var(--shadow-float);
+  --shadow-lg: var(--shadow-product);
+  --focus-ring: 2px solid var(--focus);
+  --focus-ring-offset: 2px;
+}

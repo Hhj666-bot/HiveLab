@@ -1,0 +1,7 @@
+.market-search{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:14px 0}
+.market-search .field{min-width:140px;flex:0 1 180px}.market-search .market-query{flex:1 1 220px}.market-search .button{margin-bottom:1px;min-height:39px}
+.market-source,.sharing-panel{border:1px solid var(--line);border-radius:var(--r-md);padding:16px;margin:18px 0}
+.market-source summary,.sharing-panel summary{cursor:pointer}.market-source .field,.sharing-panel .field{margin:12px 0}
+.sharing-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;background:var(--surface-2);padding:12px;font-size:var(--fs-sm)}
+.sharing-panel .extension-trust{line-height:1.6}.market-source input,.sharing-panel textarea{width:100%}
+@media(max-width:720px){.market-search .field,.market-search .market-query{flex-basis:100%}.market-search .button{flex:1}.sharing-panel{padding:12px}}
